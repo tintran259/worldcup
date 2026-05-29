@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LiveMatchesTab }  from '@/modules/side-panel/tabs/LiveMatchesTab'
-import { StandingsTab }    from '@/modules/side-panel/tabs/StandingsTab'
+import { LiveMatchesTab } from '@/modules/side-panel/tabs/LiveMatchesTab'
+import { StandingsTab } from '@/modules/side-panel/tabs/StandingsTab'
 import { MatchHistoryTab } from '@/modules/side-panel/tabs/MatchHistoryTab'
-import { StatsTab }        from '@/modules/side-panel/tabs/StatsTab'
-import { MOCK_ROUNDS }     from '@/lib/constants/mockData'
+import { StatsTab } from '@/modules/side-panel/tabs/StatsTab'
+import { MOCK_ROUNDS } from '@/lib/constants/mockData'
 
 // ── Tab config ────────────────────────────────────────────────────────────────
 
@@ -15,28 +15,29 @@ type TabId = 'live' | 'standings' | 'results' | 'stats'
 type Accent = 'live' | 'mint' | 'gold' | 'cyan'
 
 const ACCENT_COLOR: Record<Accent, string> = {
-  live:      'var(--accent-live)',
-  mint:      'var(--accent-trail)',
-  gold:      'var(--accent-winner)',
-  cyan:      'var(--accent-primary)',
+  live: 'var(--accent-live)',
+  mint: 'var(--accent-trail)',
+  gold: 'var(--accent-winner)',
+  cyan: 'var(--accent-primary)',
 }
 
 interface TabConfig {
-  id:     TabId
-  label:  string
+  id: TabId
+  label: string
   accent: Accent
 }
 
 const TABS: TabConfig[] = [
-  { id: 'live',      label: 'Live',      accent: 'live' },
+  { id: 'live', label: 'Live', accent: 'live' },
   { id: 'standings', label: 'Standings', accent: 'mint' },
-  { id: 'results',   label: 'Results',   accent: 'gold' },
-  { id: 'stats',     label: 'Stats',     accent: 'cyan' },
+  { id: 'results', label: 'Results', accent: 'gold' },
+  { id: 'stats', label: 'Stats', accent: 'cyan' },
 ]
 
 // ── Styled ────────────────────────────────────────────────────────────────────
 
 const Root = styled.div`
+  flex: 1;          /* fills MobileTabsCell (flex column parent) */
   display: flex;
   flex-direction: column;
   border-radius: 16px;
@@ -45,7 +46,6 @@ const Root = styled.div`
   backdrop-filter: blur(18px);
   border: 1px solid ${(p) => p.theme.colors.border.subtle};
   box-shadow: ${(p) => p.theme.shadows.card};
-  min-height: 0;
 `
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
@@ -83,9 +83,9 @@ const TabBtn = styled.button<{ $active: boolean; $accent: Accent }>`
   &:hover:not(:disabled) {
     background: rgba(0, 0, 0, 0.03);
     color: ${(p) =>
-      p.$active
-        ? ACCENT_COLOR[p.$accent]
-        : p.theme.colors.text.secondary};
+    p.$active
+      ? ACCENT_COLOR[p.$accent]
+      : p.theme.colors.text.secondary};
   }
 
   /* Active indicator bar at bottom */
@@ -155,7 +155,7 @@ const Panel = styled(motion.div)`
 
 // ── Tab content accent top-bar ─────────────────────────────────────────────────
 
-const AccentBar = styled(motion.div)<{ $accent: Accent }>`
+const AccentBar = styled(motion.div) <{ $accent: Accent }>`
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
@@ -171,26 +171,26 @@ const AccentBar = styled(motion.div)<{ $accent: Accent }>`
 // ── Slide variants ────────────────────────────────────────────────────────────
 
 const slide = (dir: number) => ({
-  enter:  { x: dir > 0 ?  24 : -24, opacity: 0 },
+  enter: { x: dir > 0 ? 24 : -24, opacity: 0 },
   center: { x: 0, opacity: 1, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] as const } },
-  exit:   { x: dir > 0 ? -24 :  24, opacity: 0, transition: { duration: 0.16 } },
+  exit: { x: dir > 0 ? -24 : 24, opacity: 0, transition: { duration: 0.16 } },
 })
 
 // ── Content renderer ──────────────────────────────────────────────────────────
 
 function renderTab(id: TabId) {
   switch (id) {
-    case 'live':      return <LiveMatchesTab />
+    case 'live': return <LiveMatchesTab />
     case 'standings': return <StandingsTab />
-    case 'results':   return <MatchHistoryTab />
-    case 'stats':     return <StatsTab />
+    case 'results': return <MatchHistoryTab />
+    case 'stats': return <StatsTab />
   }
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function MobileBentoTabs() {
-  const [active, setActive]   = useState<TabId>('live')
+  const [active, setActive] = useState<TabId>('live')
   const prevIdx = useRef(0)
 
   const liveCount = MOCK_ROUNDS
