@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Flag } from '@/ui/primitives/Flag'
 import { GROUP_STANDINGS } from '@/lib/mock'
 import type { GroupStage, GroupRow, FormResult } from '@/lib/mock'
+import { useTeamModalStore } from '@/store'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Shared micro-components
@@ -105,6 +106,7 @@ const PtsCell = styled(TD)`
 interface GroupTableProps { group: GroupStage; compact?: boolean }
 
 function GroupTable({ group, compact }: GroupTableProps) {
+  const { openTeam } = useTeamModalStore()
   return (
     <Table>
       <thead>
@@ -119,7 +121,9 @@ function GroupTable({ group, compact }: GroupTableProps) {
       </thead>
       <tbody>
         {group.teams.map((row) => (
-          <TR key={row.team.id} $s={row.advanceStatus}>
+          <TR key={row.team.id} $s={row.advanceStatus}
+            onClick={() => openTeam(row.team.id)}
+            style={{ cursor: 'pointer' }}>
             <TD>
               <TeamCell>
                 <StatusDot $s={row.advanceStatus} />

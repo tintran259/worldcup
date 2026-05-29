@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components'
 import { motion } from 'framer-motion'
 import { useRealtime }      from '@/modules/realtime/useRealtime'
 import { LiveEventToast }   from '@/ui/components/LiveEventToast/LiveEventToast'
+import { TeamModal }        from '@/modules/team-modal/TeamModal'
 
 // ── Ambient animations ────────────────────────────────────────────────────────
 
@@ -148,6 +149,9 @@ export function AppShell({ children, hasLiveMatches = false }: AppShellProps) {
 
       {/* Live event toasts — portal-rendered above everything */}
       <LiveEventToast />
+
+      {/* Team detail modal — portal-rendered at z-index 500 */}
+      <TeamModal />
     </Shell>
   )
 }
