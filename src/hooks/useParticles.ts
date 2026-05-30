@@ -15,14 +15,14 @@ const COLORS = ['37,99,235', '16,185,129', '251,191,36', '148,163,184'] as const
 
 function spawn(w: number, h: number, fromBottom = true): Particle {
   return {
-    x:        Math.random() * w,
-    y:        fromBottom ? h + Math.random() * 40 : Math.random() * h,
-    vx:       (Math.random() - 0.5) * 0.20,
-    vy:       -(0.08 + Math.random() * 0.16),
-    r:        0.8 + Math.random() * 2.0,
-    alpha:    fromBottom ? 0 : Math.random() * 0.10,
+    x: Math.random() * w,
+    y: fromBottom ? h + Math.random() * 40 : Math.random() * h,
+    vx: (Math.random() - 0.5) * 0.20,
+    vy: -(0.08 + Math.random() * 0.16),
+    r: 0.8 + Math.random() * 2.0,
+    alpha: fromBottom ? 0 : Math.random() * 0.10,
     alphaDir: 0.0014 + Math.random() * 0.0022,
-    color:    COLORS[Math.floor(Math.random() * COLORS.length)],
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
   }
 }
 
@@ -33,7 +33,7 @@ function spawn(w: number, h: number, fromBottom = true): Particle {
  */
 export function useParticles(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  count  = 24,
+  count = 24,
   enabled = true,
 ) {
   useEffect(() => {
@@ -50,7 +50,7 @@ export function useParticles(
     const fit = () => {
       const w = canvas.offsetWidth
       const h = canvas.offsetHeight
-      canvas.width  = w * dpr
+      canvas.width = w * dpr
       canvas.height = h * dpr
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }

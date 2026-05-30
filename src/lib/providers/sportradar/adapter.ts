@@ -96,7 +96,7 @@ export const sportradarAdapter: ProviderAdapter = {
       goalsFor: s.goals_scored, goalsAgainst: s.goals_received, goalDifference: s.goal_diff,
       points: s.points, form: (s.form ?? []).map(f => formMap[f] ?? 'D'),
       advanceStatus: s.current_outcome?.toLowerCase().includes('advanc') ? 'qualified'
-                   : s.current_outcome?.toLowerCase().includes('eliminat') ? 'eliminated' : 'pending',
+        : s.current_outcome?.toLowerCase().includes('eliminat') ? 'eliminated' : 'pending',
     }
   },
 
@@ -110,6 +110,19 @@ export const sportradarAdapter: ProviderAdapter = {
       tournamentGoals: 0, tournamentAssists: 0, tournamentYellowCards: 0, tournamentRedCards: 0,
       matchesPlayed: 0, minutesPlayed: 0, rating: 0, marketValue: '',
       goals: 0, assists: 0, yellowCards: 0, redCards: 0,
+    }
+  },
+
+  toTopScorer(raw: unknown, rank: number) {
+    // Sportradar: TODO — chưa implement, dùng toPlayer làm placeholder
+    const player = sportradarAdapter.toPlayer(raw)
+    return {
+      rank,
+      player,
+      team: sportradarAdapter.toExtendedTeam({ id: '', name: '', abbreviation: '', country_code: '' }),
+      goals: 0,
+      assists: 0,
+      minutesPerGoal: 0,
     }
   },
 }

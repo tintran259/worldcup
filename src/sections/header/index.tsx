@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { LivePulse }           from '@/components/LivePulse'
 import { usePanelStore }        from '@/stores'
 import { useBreakpoint }        from '@/hooks/useBreakpoint'
+import { useCompetition }       from '@/hooks/useCompetition'
 import { useHeaderStats }       from './hooks/useHeaderStats'
 import {
   TOURNAMENT_ROUNDS,
@@ -51,6 +52,7 @@ export function Header() {
   const { isCollapsed, toggleCollapse, openMobilePanel, isMobileOpen } = usePanelStore()
   const { isMobile }                   = useBreakpoint()
   const { liveCount, completedCount }  = useHeaderStats()
+  const competition                    = useCompetition()
 
   const handlePanelAction = () => {
     if (isMobile) openMobilePanel()
@@ -72,8 +74,10 @@ export function Header() {
         </LogoMark>
         <HeaderDivider />
         <TitleBlock>
-          <TournamentYear>2026</TournamentYear>
-          <TournamentSubtitle>World Cup</TournamentSubtitle>
+          <TournamentYear>{competition.year}</TournamentYear>
+          <TournamentSubtitle>
+            {competition.title.replace(/^FIFA\s+/, '')}
+          </TournamentSubtitle>
         </TitleBlock>
       </LogoSection>
 

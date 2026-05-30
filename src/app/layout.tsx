@@ -3,6 +3,9 @@ import { Inter, Outfit, JetBrains_Mono } from 'next/font/google'
 import { StyledComponentsRegistry } from '@/providers/StyledRegistryProvider'
 import { AppThemeProvider } from '@/providers/ThemeProvider'
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider'
+import { getCompetition } from '@/lib/config'
+
+const COMP = getCompetition()
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,21 +27,21 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'FIFA World Cup 2026',
-    template: '%s | FIFA World Cup 2026',
+    default: COMP.name,
+    template: `%s | ${COMP.name}`,
   },
   description:
-    'Interactive FIFA World Cup 2026 tournament bracket explorer with live match tracking and realtime updates.',
-  keywords: ['FIFA', 'World Cup', '2026', 'bracket', 'tournament', 'football', 'soccer'],
+    `Interactive ${COMP.name} tournament bracket explorer with live match tracking and realtime updates.`,
+  keywords: [COMP.name, COMP.shortName, 'bracket', 'tournament', 'football', 'soccer'],
   openGraph: {
-    title: 'FIFA World Cup 2026 Bracket Explorer',
+    title: `${COMP.name} Bracket Explorer`,
     description: 'Follow the tournament live with an interactive bracket explorer.',
     type: 'website',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FIFA World Cup 2026 Bracket Explorer',
+    title: `${COMP.name} Bracket Explorer`,
   },
 }
 

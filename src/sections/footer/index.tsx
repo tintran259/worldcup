@@ -1,8 +1,8 @@
 'use client'
 
-import { useBracketStore }  from '@/stores'
-import { formatZoomPercent } from '@/utils/format'
-import { HOST_NATIONS }      from '@/constants/tournament'
+import { useBracketStore }   from '@/stores'
+import { useCompetition }     from '@/hooks/useCompetition'
+import { formatZoomPercent }  from '@/utils/format'
 import { footerEntrance }    from './animations/footer'
 import {
   FooterRoot,
@@ -17,7 +17,8 @@ import {
 } from './styles'
 
 export function Footer() {
-  const { zoom } = useBracketStore()
+  const { zoom }    = useBracketStore()
+  const competition = useCompetition()
 
   return (
     <FooterRoot
@@ -27,9 +28,7 @@ export function Footer() {
     >
       <FooterLeft>
         <AccentDot />
-        <FooterText>FIFA World Cup 2026</FooterText>
-        <FooterDivider />
-        <FooterText>{HOST_NATIONS.join(' · ')}</FooterText>
+        <FooterText>{competition.name}</FooterText>
       </FooterLeft>
 
       <FooterRight>

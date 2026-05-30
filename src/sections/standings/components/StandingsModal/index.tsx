@@ -5,6 +5,7 @@ import { createPortal }  from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
 import { GroupTable }      from '../GroupTable'
 import { useStandings }    from '../../hooks/useStandings'
+import { useCompetition }  from '@/hooks/useCompetition'
 import {
   backdropVariants,
   modalVariants,
@@ -39,7 +40,8 @@ export interface StandingsModalProps {
 }
 
 export function StandingsModal({ onClose }: StandingsModalProps) {
-  const { groups } = useStandings()
+  const { groups }   = useStandings()
+  const competition  = useCompetition()
 
   // Close on Escape key
   useEffect(() => {
@@ -71,7 +73,7 @@ export function StandingsModal({ onClose }: StandingsModalProps) {
           <ModalHeader>
             <div>
               <ModalTitle>Bảng xếp hạng</ModalTitle>
-              <ModalSub>FIFA World Cup 2026™ · 12 bảng đấu</ModalSub>
+              <ModalSub>{competition.name} · {groups.length} bảng đấu</ModalSub>
             </div>
             <CloseBtn onClick={onClose} whileTap={{ scale: 0.92 }} aria-label="Đóng">
               <IconClose />

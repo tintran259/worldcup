@@ -44,7 +44,7 @@ export function GroupTable({ group, compact }: GroupTableProps) {
             </TD>
             <TD>
               <TeamCell>
-                <Flag countryCode={row.team.code} size="xs" />
+                <Flag countryCode={row.team.code} flagUrl={row.team.flagUrl} size="xs" />
                 <div>
                   <TName>{row.team.shortName}</TName>
                   {!compact && (

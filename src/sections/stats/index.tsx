@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { Flag } from '@/components/Flag'
+import { useStats } from './hooks/useStats'
 import {
   SectionTitle,
   Section,
@@ -27,22 +27,6 @@ import {
   BarValue,
 } from './styles'
 
-const TOP_SCORERS = [
-  { rank: 1, name: 'Vinícius Jr.', team: 'BRA', code: 'BR', goals: 4, assists: 2 },
-  { rank: 2, name: 'Mbappé', team: 'FRA', code: 'FR', goals: 3, assists: 3 },
-  { rank: 3, name: 'Messi', team: 'ARG', code: 'AR', goals: 3, assists: 1 },
-  { rank: 4, name: 'Bellingham', team: 'ENG', code: 'GB', goals: 2, assists: 2 },
-  { rank: 5, name: 'Modrić', team: 'CRO', code: 'HR', goals: 1, assists: 3 },
-]
-
-const TEAM_GOALS = [
-  { name: 'BRA', code: 'BR', goals: 9, max: 9 },
-  { name: 'FRA', code: 'FR', goals: 7, max: 9 },
-  { name: 'ARG', code: 'AR', goals: 6, max: 9 },
-  { name: 'ENG', code: 'GB', goals: 5, max: 9 },
-  { name: 'ESP', code: 'ES', goals: 4, max: 9 },
-]
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
@@ -53,74 +37,88 @@ const itemVariants = {
   visible: { opacity: 1, x: 0 },
 }
 
+const SUMMARY_CARDS = [
+  { key: 'goalsScored', label: 'Goals Scored', color: 'var(--accent-primary)', delay: 0 },
+  { key: 'matchesPlayed', label: 'Matches Played', color: 'var(--accent-winner)', delay: 0.05 },
+  { key: 'goalsPerMatch', label: 'Goals / Match', color: 'var(--accent-trail)', delay: 0.1 },
+  { key: 'teamsRemaining', label: 'Teams Remaining', color: 'var(--accent-live)', delay: 0.15 },
+] as const
+
 export function StatsTab() {
+  const { summary, topScorers, teamGoals } = useStats()
+
+  // Max goals làm thước đo bar (tránh chia 0 nếu chưa có data)
+  const maxTeamGoals = Math.max(1, ...teamGoals.map(t => t.goals))
+
   return (
     <div>
+      {/* ── Summary ── */}
       <SectionTitle>Tournament Summary</SectionTitle>
       <SummaryGrid>
-        {[
-          { value: '38', label: 'Goals Scored', color: 'var(--accent-primary)', delay: 0 },
-          { value: '10', label: 'Matches Played', color: 'var(--accent-winner)', delay: 0.05 },
-          { value: '3.8', label: 'Goals / Match', color: 'var(--accent-trail)', delay: 0.1 },
-          { value: '32', label: 'Teams Remaining', color: 'var(--accent-live)', delay: 0.15 },
-        ].map(({ value, label, color, delay }) => (
+        {SUMMARY_CARDS.map(({ key, label, color, delay }) => (
           <SummaryCard
-            key={label}
+            key={key}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay }}
           >
-            <SummaryValue>{value}</SummaryValue>
+            <SummaryValue>{summary[key as keyof typeof summary]}</SummaryValue>
             <SummaryLabel>{label}</SummaryLabel>
             <SummaryAccent $color={color} />
           </SummaryCard>
         ))}
       </SummaryGrid>
 
-      <Section>
-        <SectionTitle>Top Scorers</SectionTitle>
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          {TOP_SCORERS.map((player) => (
-            <ScorerRow key={player.name} variants={itemVariants}>
-              <ScorerRank $rank={player.rank}>{player.rank}</ScorerRank>
-              <Flag countryCode={player.code} size="sm" />
-              <ScorerInfo>
-                <ScorerName>{player.name}</ScorerName>
-                <ScorerMeta>{player.team} · {player.assists} ast</ScorerMeta>
-              </ScorerInfo>
-              <GoalCount>
-                <GoalNumber>{player.goals}</GoalNumber>
-                <GoalUnit>G</GoalUnit>
-              </GoalCount>
-            </ScorerRow>
-          ))}
-        </motion.div>
-      </Section>
+      {/* ── Top Scorers ── */}
+      {topScorers.length > 0 && (
+        <Section>
+          <SectionTitle>Top Scorers</SectionTitle>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+            {topScorers.map((p) => (
+              <ScorerRow key={p.player.id} variants={itemVariants}>
+                <ScorerRank $rank={p.rank}>{p.rank}</ScorerRank>
+                <Flag countryCode={p.team.code} flagUrl={p.team.flagUrl} size="sm" />
+                <ScorerInfo>
+                  <ScorerName>{p.player.name}</ScorerName>
+                  <ScorerMeta>{p.team.shortName} · {p.assists} ast</ScorerMeta>
+                </ScorerInfo>
+                <GoalCount>
+                  <GoalNumber>{p.goals}</GoalNumber>
+                  <GoalUnit>G</GoalUnit>
+                </GoalCount>
+              </ScorerRow>
+            ))}
+          </motion.div>
+        </Section>
+      )}
 
-      <Section>
-        <SectionTitle>Goals by Team</SectionTitle>
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          {TEAM_GOALS.map((team, idx) => (
-            <TeamBarRow key={team.name} variants={itemVariants}>
-              <TeamBarInfo>
-                <Flag countryCode={team.code} size="xs" />
-                <TeamBarName>{team.name}</TeamBarName>
-              </TeamBarInfo>
-              <BarTrack>
-                <BarFill
-                  $pct={(team.goals / team.max) * 100}
-                  $color={
-                    idx === 0 ? 'var(--accent-primary)' :
-                      idx === 1 ? 'var(--accent-trail)' :
-                        'rgba(0,212,255,0.4)'
-                  }
-                />
-              </BarTrack>
-              <BarValue>{team.goals}</BarValue>
-            </TeamBarRow>
-          ))}
-        </motion.div>
-      </Section>
+      {/* ── Goals by Team ── */}
+      {teamGoals.length > 0 && (
+        <Section>
+          <SectionTitle>Goals by Team</SectionTitle>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+            {teamGoals.map((team, idx) => (
+              <TeamBarRow key={team.name} variants={itemVariants}>
+                <TeamBarInfo>
+                  <Flag countryCode={team.code} flagUrl={team.flagUrl} size="xs" />
+                  <TeamBarName>{team.name}</TeamBarName>
+                </TeamBarInfo>
+                <BarTrack>
+                  <BarFill
+                    $pct={(team.goals / maxTeamGoals) * 100}
+                    $color={
+                      idx === 0 ? 'var(--accent-primary)' :
+                        idx === 1 ? 'var(--accent-trail)' :
+                          'rgba(0,212,255,0.4)'
+                    }
+                  />
+                </BarTrack>
+                <BarValue>{team.goals}</BarValue>
+              </TeamBarRow>
+            ))}
+          </motion.div>
+        </Section>
+      )}
     </div>
   )
 }

@@ -34,15 +34,20 @@ export function StandingsTab() {
   const openModal = useCallback(() => setModalOpen(true), [])
   const closeModal = useCallback(() => setModalOpen(false), [])
 
+  // Ẩn button "Tất cả" khi không có bảng đấu nào (giải không có vòng bảng)
+  const hasGroups = groups.length > 0
+
   return (
     <>
       <PanelHeader>
         <SectionTitle>Bảng xếp hạng</SectionTitle>
 
-        <ViewAllBtn onClick={openModal} whileTap={{ scale: 0.94 }} title="Xem tất cả bảng đấu">
-          <IconExpand />
-          Tất cả
-        </ViewAllBtn>
+        {hasGroups && (
+          <ViewAllBtn onClick={openModal} whileTap={{ scale: 0.94 }} title="Xem tất cả bảng đấu">
+            <IconExpand />
+            Tất cả
+          </ViewAllBtn>
+        )}
       </PanelHeader>
 
       {groups.map((group) => (

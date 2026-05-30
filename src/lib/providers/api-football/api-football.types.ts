@@ -118,6 +118,12 @@ export interface AfPlayer {
     photo: string
   }
   statistics: Array<{
+    /** Team trả về cùng player stats — dùng cho topscorer endpoint */
+    team?: {
+      id: number
+      name: string
+      logo: string
+    }
     games: {
       appearences: number
       lineups: number
@@ -125,6 +131,7 @@ export interface AfPlayer {
       number: number | null
       position: string   // "Goalkeeper" | "Defender" | etc.
       rating: string | null
+      captain?: boolean
     }
     goals: { total: number | null; assists: number | null }
     cards: { yellow: number; yellowred: number; red: number }

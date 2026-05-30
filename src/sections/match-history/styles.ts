@@ -68,3 +68,55 @@ export const ScoreDash = styled.span`
   font-size: ${(p) => p.theme.fontSizes.xs};
   color: ${(p) => p.theme.colors.text.muted};
 `
+
+// Container cho score + meta row (date, cards) ở dưới
+export const ScoreColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+`
+
+// Row chứa date và card counts
+export const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(p) => p.theme.space[2]};
+  font-family: ${(p) => p.theme.fonts.mono};
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: ${(p) => p.theme.colors.text.disabled};
+  text-transform: uppercase;
+  white-space: nowrap;
+`
+
+export const MetaDot = styled.span`
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+`
+
+// Pill nhỏ hiện số thẻ vàng/đỏ — chỉ show khi có data
+export const CardPill = styled.span<{ $color: 'yellow' | 'red' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: ${(p) => p.$color === 'yellow' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)'};
+  color:      ${(p) => p.$color === 'yellow' ? '#92400e'                : '#991b1b'};
+  font-size: 9px;
+  font-weight: ${(p) => p.theme.fontWeights.bold};
+
+  /* Khối màu nhỏ */
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 8px;
+    border-radius: 1px;
+    background: ${(p) => p.$color === 'yellow' ? '#f59e0b' : '#ef4444'};
+  }
+`

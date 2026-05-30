@@ -15,6 +15,7 @@ import { z } from 'zod'
 export const PROVIDER_NAMES = ['api-football', 'sportmonks', 'sportradar'] as const
 export const COMPETITION_KEYS = [
   'wc2026',
+  'wc2022',
   'euro2024',
   'copa-america-2024',
   'ucl',

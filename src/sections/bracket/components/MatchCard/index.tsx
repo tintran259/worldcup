@@ -89,7 +89,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       >
         {match.homeTeam ? (
           <>
-            <Flag countryCode={match.homeTeam.code} countryName={match.homeTeam.name} size="sm" />
+            <Flag countryCode={match.homeTeam.code} countryName={match.homeTeam.name} flagUrl={match.homeTeam.flagUrl} size="sm" />
             <TeamName $isWinner={homeIsWinner}>{match.homeTeam.shortName}</TeamName>
             {homeScore !== undefined && (
               <ScoreBox ref={homeScoreRef} $isWinner={homeIsWinner}>
@@ -112,7 +112,7 @@ export function MatchCard({ match, index }: MatchCardProps) {
       >
         {match.awayTeam ? (
           <>
-            <Flag countryCode={match.awayTeam.code} countryName={match.awayTeam.name} size="sm" />
+            <Flag countryCode={match.awayTeam.code} countryName={match.awayTeam.name} flagUrl={match.awayTeam.flagUrl} size="sm" />
             <TeamName $isWinner={awayIsWinner}>{match.awayTeam.shortName}</TeamName>
             {awayScore !== undefined && (
               <ScoreBox ref={awayScoreRef} $isWinner={awayIsWinner}>

@@ -5,19 +5,24 @@
  *   status = "live" | "upcoming" | "completed"
  *   teamId = string  (filter by team)
  *
- * Returns: Match[]  — canonical domain types, never raw provider data.
- * Falls back to mock data when no provider credentials are configured.
+ * Returns: Match[] (canonical domain types)
+ *
+ * Fallback strategy: xem app/api/_helpers.ts
  */
 
 import { NextRequest } from 'next/server'
 import { getMatchRepository } from '@/lib/server'
 import { MOCK_ROUNDS } from '@/lib/mock'
+import { handleProviderError } from '../_helpers'
 import type { Match } from '@/types/domain.types'
 
 export const dynamic = 'force-dynamic'
 
-function getMockMatches(): Match[] {
-  return MOCK_ROUNDS.flatMap((r) => r.matches)
+function filterMock(status: Match['status'] | null, teamId: string | null): Match[] {
+  let matches = MOCK_ROUNDS.flatMap((r) => r.matches)
+  if (teamId) matches = matches.filter((m) => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId)
+  if (status) matches = matches.filter((m) => m.status === status)
+  return matches
 }
 
 export async function GET(request: NextRequest) {
@@ -29,13 +34,9 @@ export async function GET(request: NextRequest) {
     const repo = getMatchRepository()
     let matches: Match[]
 
-    if (status === 'live') {
-      matches = await repo.findLive()
-    } else if (teamId) {
-      matches = await repo.findByTeam(teamId)
-    } else {
-      matches = await repo.findAll()
-    }
+    if (status === 'live')      matches = await repo.findLive()
+    else if (teamId)            matches = await repo.findByTeam(teamId)
+    else                        matches = await repo.findAll()
 
     if (status && status !== 'live') {
       matches = matches.filter((m) => m.status === status)
@@ -49,14 +50,11 @@ export async function GET(request: NextRequest) {
             : 'public, s-maxage=60, stale-while-revalidate=120',
       },
     })
-  } catch {
-    // No provider configured or provider unavailable — serve mock data
-    let matches = getMockMatches()
-    if (teamId) matches = matches.filter((m) => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId)
-    if (status) matches = matches.filter((m) => m.status === status)
-
-    return Response.json(matches, {
-      headers: { 'X-Data-Source': 'mock', 'Cache-Control': 'no-store' },
+  } catch (error) {
+    return handleProviderError({
+      route:    'matches',
+      error,
+      mockData: filterMock(status, teamId),
     })
   }
 }

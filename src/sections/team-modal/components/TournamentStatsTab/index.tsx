@@ -1,11 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { TEAM_MAP }       from '@/lib/mock/teams'
-import { getTeamPlayers } from '@/lib/mock/players'
-import { MOCK_ROUNDS }    from '@/lib/mock'
-import type { StarPlayer } from '@/lib/mock/types'
-import type { Match }      from '@/types/domain.types'
+import type { ExtendedTeam, StarPlayer } from '@/lib/mock/types'
+import type { Match } from '@/types/domain.types'
 import {
   Root, SectionTitle,
   LeaderGrid, LeaderCard, LeaderIcon, LeaderTitle, LeaderAvatar, LeaderName, LeaderStat, LeaderStatLabel,
@@ -14,11 +11,6 @@ import {
 } from './styles'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTeamMatches(teamId: string): Match[] {
-  return MOCK_ROUNDS.flatMap(r => r.matches)
-    .filter(m => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId)
-}
 
 function initials(name: string): string {
   return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
@@ -44,15 +36,15 @@ const fadeUp = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-interface Props {
-  teamId: string
-  onPlayerClick: (id: string) => void
+export interface TournamentStatsTabProps {
+  team:           ExtendedTeam | null
+  players:        StarPlayer[]
+  matches:        Match[]
+  onPlayerClick:  (id: string) => void
 }
 
-export function TournamentStatsTab({ teamId, onPlayerClick }: Props) {
-  const team      = TEAM_MAP.get(teamId)
-  const players   = getTeamPlayers(teamId)
-  const matches   = getTeamMatches(teamId)
+export function TournamentStatsTab({ team, players, matches, onPlayerClick }: TournamentStatsTabProps) {
+  const teamId    = team?.id ?? ''
   const teamColor = team?.homeColor ?? '#2563eb'
 
   if (!players.length) {

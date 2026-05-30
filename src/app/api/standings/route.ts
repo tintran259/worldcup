@@ -1,13 +1,12 @@
 /**
  * GET /api/standings          — All group stages
  * GET /api/standings?group=A  — Single group
- *
- * Falls back to mock data when no provider credentials are configured.
  */
 
 import { NextRequest } from 'next/server'
 import { getStandingsRepository } from '@/lib/server'
 import { GROUP_STANDINGS, GROUP_MAP } from '@/lib/mock'
+import { handleProviderError } from '../_helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,15 +24,13 @@ export async function GET(request: NextRequest) {
     return Response.json(data, {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
     })
-  } catch {
-    const data = groupId ? (GROUP_MAP.get(groupId) ?? null) : GROUP_STANDINGS
+  } catch (error) {
+    const mockData = groupId ? (GROUP_MAP.get(groupId) ?? null) : GROUP_STANDINGS
 
-    if (groupId && !data) {
+    if (groupId && !mockData) {
       return Response.json({ error: `Group ${groupId} not found` }, { status: 404 })
     }
 
-    return Response.json(data, {
-      headers: { 'X-Data-Source': 'mock', 'Cache-Control': 'no-store' },
-    })
+    return handleProviderError({ route: 'standings', error, mockData })
   }
 }

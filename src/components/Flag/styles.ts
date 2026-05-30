@@ -25,3 +25,15 @@ export const FlagWrapper = styled.span<{ $size: FlagSize }>`
   }};
   line-height: 1;
 `
+
+/**
+ * Image fill bên trong FlagWrapper.
+ * Logo team từ api-football thường là PNG vuông trong suốt → dùng `contain`
+ * để giữ tỷ lệ và không bị crop.
+ */
+export const FlagImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+`

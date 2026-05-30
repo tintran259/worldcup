@@ -8,7 +8,7 @@
 import type { ProviderAdapter } from '../types'
 import type { AfFixture, AfTeam, AfEvent, AfStanding, AfPlayer } from './api-football.types'
 import type { Match, MatchEvent, Team } from '@/types/domain.types'
-import type { ExtendedTeam, GroupRow, StarPlayer, FormResult } from '@/lib/mock/types'
+import type { ExtendedTeam, GroupRow, StarPlayer, FormResult, TopScorer } from '@/lib/mock/types'
 
 // ── Bảng ánh xạ status ────────────────────────────────────────────────────────
 
@@ -28,6 +28,18 @@ const ROUND_MAP: Record<string, Match['round']> = {
   '3rd Place Final': 'third-place',
 }
 
+/**
+ * Map round string từ API-Football → Match['round'].
+ *
+ * API-Football trả "Group Stage - 1", "Group Stage - 2", "Group Stage - 3"
+ * cho 3 lượt vòng bảng. Bracket UI không hiển thị group stage nên gom lại
+ * thành 'group' để route handler có thể filter ra dễ dàng.
+ */
+function mapRound(raw: string): Match['round'] {
+  if (raw.startsWith('Group Stage')) return 'group'
+  return ROUND_MAP[raw] ?? 'group'   // unknown → 'group' (an toàn hơn 'round-of-32')
+}
+
 const POSITION_MAP: Record<string, StarPlayer['position']> = {
   Goalkeeper: 'GK', Defender: 'DEF', Midfielder: 'MID', Attacker: 'FWD',
 }
@@ -41,7 +53,8 @@ function toTeamRef(ref: AfFixture['teams']['home']): Team {
     name: ref.name,
     shortName: ref.name.slice(0, 3).toUpperCase(),
     code,
-    flagUrl: `https://flagcdn.com/w40/${code}.png`,
+    // API-Football trả logo team — với national team đây chính là flag
+    flagUrl: ref.logo || `https://flagcdn.com/w40/${code}.png`,
   }
 }
 
@@ -57,7 +70,7 @@ export const apiFootballAdapter: ProviderAdapter = {
 
     return {
       id: `af:${f.fixture.id}`,
-      round: ROUND_MAP[f.league.round] ?? 'round-of-32',
+      round: mapRound(f.league.round),
       roundDisplay: f.league.round,
       matchNumber: f.fixture.id,
       homeTeam: toTeamRef(f.teams.home),
@@ -113,7 +126,8 @@ export const apiFootballAdapter: ProviderAdapter = {
       name: t.team.name,
       shortName: t.team.code ?? t.team.name.slice(0, 3).toUpperCase(),
       code,
-      flagUrl: `https://flagcdn.com/w40/${code}.png`,
+      // Ưu tiên logo từ API; fallback flagcdn theo ISO code
+      flagUrl: t.team.logo || `https://flagcdn.com/w40/${code}.png`,
     }
   },
 
@@ -179,6 +193,25 @@ export const apiFootballAdapter: ProviderAdapter = {
       assists: st?.goals.assists ?? 0,
       yellowCards: st?.cards.yellow ?? 0,
       redCards: st?.cards.red ?? 0,
+    }
+  },
+
+  toTopScorer(raw: unknown, rank: number): TopScorer {
+    const p = raw as AfPlayer
+    const stats = p.statistics[0]
+    const goals = stats?.goals.total ?? 0
+    const mins = stats?.games.minutes ?? 0
+
+    return {
+      rank,
+      player: apiFootballAdapter.toPlayer(raw),
+      team: apiFootballAdapter.toExtendedTeam({
+        team: stats?.team,
+        venue: {},
+      }),
+      goals,
+      assists: stats?.goals.assists ?? 0,
+      minutesPerGoal: goals > 0 ? Math.round(mins / goals) : 0,
     }
   },
 }

@@ -46,6 +46,37 @@ export const COMPETITIONS: Record<CompetitionKey, CompetitionConfig> = {
     },
   },
 
+  // ── FIFA World Cup 2022 (Qatar) ─────────────────────────────────────────────
+  // Argentina vô địch (penalty thắng France) — có đầy đủ 64 trận data.
+  // Dùng để dev khi WC 2026 chưa có data trong API.
+  wc2022: {
+    key: 'wc2022',
+    name: 'FIFA World Cup 2022',
+    shortName: 'World Cup 2022',
+    type: 'cup',
+    hasGroupStage: true,
+    providerIds: {
+      'api-football': {
+        leagueId: '1',
+        season: '2022',
+        dateFrom: '2022-11-20',
+        dateTo: '2022-12-18',
+      },
+      sportmonks: {
+        stageId: 'wc_2022',
+        seasonId: '19686',
+        dateFrom: '2022-11-20',
+        dateTo: '2022-12-18',
+      },
+      sportradar: {
+        tournamentId: 'sr:tournament:1',
+        seasonId: 'sr:season:77453',
+        dateFrom: '2022-11-20',
+        dateTo: '2022-12-18',
+      },
+    },
+  },
+
   // ── UEFA Euro 2024 ───────────────────────────────────────────────────────────
   euro2024: {
     key: 'euro2024',
@@ -104,31 +135,34 @@ export const COMPETITIONS: Record<CompetitionKey, CompetitionConfig> = {
     },
   },
 
-  // ── UEFA Champions League 2024-25 ────────────────────────────────────────────
+  // ── UEFA Champions League 2023-24 ────────────────────────────────────────────
+  // NOTE: dùng season 2023-24 vì free plan chỉ cho phép query season 2021-2023.
+  // Real Madrid vô địch — có data đầy đủ knockout bracket.
+  // Khi nâng cấp paid plan hoặc WC 2026 có data: đổi sang competition khác.
   ucl: {
     key: 'ucl',
-    name: 'UEFA Champions League 2024-25',
+    name: 'UEFA Champions League 2023-24',
     shortName: 'Champions League',
     type: 'cup',
-    hasGroupStage: true,   // new "league phase" format
+    hasGroupStage: true,
     providerIds: {
       'api-football': {
         leagueId: '2',
-        season: '2024',
-        dateFrom: '2024-09-17',
-        dateTo: '2025-05-31',
+        season: '2023',
+        dateFrom: '2023-09-19',
+        dateTo: '2024-06-01',
       },
       sportmonks: {
-        stageId: 'ucl_2024_25',
-        seasonId: '23516',
-        dateFrom: '2024-09-17',
-        dateTo: '2025-05-31',
+        stageId: 'ucl_2023_24',
+        seasonId: '21638',
+        dateFrom: '2023-09-19',
+        dateTo: '2024-06-01',
       },
       sportradar: {
         tournamentId: 'sr:tournament:7',
         seasonId: 'sr:season:106478',
-        dateFrom: '2024-09-17',
-        dateTo: '2025-05-31',
+        dateFrom: '2023-09-19',
+        dateTo: '2024-06-01',
       },
     },
   },

@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useTeamModalStore } from '@/stores'
-import { TEAM_MAP } from '@/lib/mock/teams'
-import { PLAYER_MAP } from '@/lib/mock/players'
+import { useTeamDetail } from './hooks/useTeamDetail'
 import { OverviewTab } from './components/OverviewTab'
 import { SquadTab } from './components/SquadTab'
 import { TournamentStatsTab } from './components/TournamentStatsTab'
@@ -46,8 +45,9 @@ function ModalInner() {
     setTab, closeTeam, openPlayer, closePlayer,
   } = useTeamModalStore()
 
-  const team = teamId ? TEAM_MAP.get(teamId) : null
-  const player = activePlayerId ? PLAYER_MAP.get(activePlayerId) : null
+  // Fetch team + squad + matches từ API (1 lần cho tất cả 4 tabs)
+  const { team, players, matches } = useTeamDetail(teamId)
+  const player   = activePlayerId ? players.find((p) => p.id === activePlayerId) ?? null : null
   const tabIndex = TABS.findIndex(t => t.id === activeTab)
 
   const handleTabClick = useCallback((id: TeamModalTab) => {
@@ -114,10 +114,10 @@ function ModalInner() {
             animate="center"
             exit="exit"
           >
-            {activeTab === 'overview' && <OverviewTab teamId={team.id} />}
-            {activeTab === 'squad' && <SquadTab teamId={team.id} onPlayerClick={openPlayer} />}
-            {activeTab === 'stats' && <TournamentStatsTab teamId={team.id} onPlayerClick={openPlayer} />}
-            {activeTab === 'matches' && <MatchesTab teamId={team.id} />}
+            {activeTab === 'overview' && <OverviewTab team={team} players={players} matches={matches} />}
+            {activeTab === 'squad'    && <SquadTab    team={team} players={players} onPlayerClick={openPlayer} />}
+            {activeTab === 'stats'    && <TournamentStatsTab team={team} players={players} matches={matches} onPlayerClick={openPlayer} />}
+            {activeTab === 'matches'  && <MatchesTab  teamId={team.id} matches={matches} />}
           </ScrollPane>
         </AnimatePresence>
 
@@ -222,6 +222,10 @@ function ModalInner() {
 export function TeamModal() {
   const { isOpen, activePlayerId, closeTeam, closePlayer } = useTeamModalStore()
 
+  // Hydration-safe portal mount (xem comment trong LiveEventToast)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   useEffect(() => {
     if (!isOpen) return
     const prev = document.body.style.overflow
@@ -239,7 +243,7 @@ export function TeamModal() {
     return () => document.removeEventListener('keydown', handler)
   }, [isOpen, activePlayerId, closePlayer, closeTeam])
 
-  if (typeof document === 'undefined') return null
+  if (!mounted) return null
 
   return createPortal(
     <AnimatePresence>

@@ -43,15 +43,15 @@ export const sportMonksAdapter: ProviderAdapter = {
       awayTeam: away ? participantToTeam(away as SmParticipant) : null,
       score: f.scores?.find(s => s.description === 'CURRENT')
         ? {
-            home: f.scores?.find(s => s.score?.participant === 'home' && s.description === 'CURRENT')?.score.goals ?? 0,
-            away: f.scores?.find(s => s.score?.participant === 'away' && s.description === 'CURRENT')?.score.goals ?? 0,
-          }
+          home: f.scores?.find(s => s.score?.participant === 'home' && s.description === 'CURRENT')?.score.goals ?? 0,
+          away: f.scores?.find(s => s.score?.participant === 'away' && s.description === 'CURRENT')?.score.goals ?? 0,
+        }
         : null,
       status,
       venue: f.venue?.name ?? '', city: f.venue?.city_name ?? '',
       scheduledAt: f.starting_at,
       winnerId: home?.meta?.winner === true ? `sm:${home.id}`
-              : away?.meta?.winner === true ? `sm:${away.id}` : undefined,
+        : away?.meta?.winner === true ? `sm:${away.id}` : undefined,
     }
   },
 
@@ -97,7 +97,7 @@ export const sportMonksAdapter: ProviderAdapter = {
       won, drawn: draw, lost, goalsFor: gf, goalsAgainst: ga, goalDifference: gf - ga,
       points: s.points, form,
       advanceStatus: s.result?.toLowerCase().includes('advanc') ? 'qualified'
-                   : s.result?.toLowerCase().includes('relegat') ? 'eliminated' : 'pending',
+        : s.result?.toLowerCase().includes('relegat') ? 'eliminated' : 'pending',
     }
   },
 
@@ -114,6 +114,19 @@ export const sportMonksAdapter: ProviderAdapter = {
       tournamentGoals: goals, tournamentAssists: assists, tournamentYellowCards: yellows, tournamentRedCards: reds,
       matchesPlayed: stats['appearances'] ?? 0, minutesPlayed: stats['minutes_played'] ?? 0,
       rating: 0, marketValue: '', goals, assists, yellowCards: yellows, redCards: reds,
+    }
+  },
+
+  toTopScorer(raw: unknown, rank: number) {
+    // SportMonks: TODO — chưa implement, dùng toPlayer làm placeholder
+    const player = sportMonksAdapter.toPlayer(raw)
+    return {
+      rank,
+      player,
+      team: sportMonksAdapter.toExtendedTeam({}),
+      goals: player.tournamentGoals,
+      assists: player.tournamentAssists,
+      minutesPerGoal: player.tournamentGoals > 0 ? Math.round(player.minutesPlayed / player.tournamentGoals) : 0,
     }
   },
 }

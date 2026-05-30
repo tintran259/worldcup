@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEventFeedStore } from '@/stores'
@@ -124,8 +124,14 @@ export function LiveEventToast() {
   const { toastQueue, dismissToast } = useEventFeedStore()
   const dismiss = useCallback((id: string) => dismissToast(id), [dismissToast])
 
-  // Only render client-side (portal)
-  if (typeof document === 'undefined') return null
+  // ── Hydration-safe portal mount ──────────────────────────────────────────────
+  // Server và client ban đầu phải render giống nhau (cùng null).
+  // Sau khi mounted (chỉ chạy trên client) → bật portal.
+  // Tránh anti-pattern `typeof document === 'undefined'` gây hydration mismatch.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
+  if (!mounted) return null
 
   return createPortal(
     <ToastStack>

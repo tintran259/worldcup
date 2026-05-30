@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TEAM_MAP }       from '@/lib/mock/teams'
-import { getTeamPlayers } from '@/lib/mock/players'
-import type { StarPlayer } from '@/lib/mock/types'
+import type { ExtendedTeam, StarPlayer } from '@/lib/mock/types'
 import {
   Root, PositionGroup, GroupHeader, GroupLabel, GroupCount,
   PlayerGrid, CardRoot, CardMain, Avatar, CaptainBadge,
@@ -117,14 +115,13 @@ function PlayerCard({
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-interface Props {
-  teamId: string
+export interface SquadTabProps {
+  team:          ExtendedTeam | null
+  players:       StarPlayer[]
   onPlayerClick: (playerId: string) => void
 }
 
-export function SquadTab({ teamId, onPlayerClick }: Props) {
-  const team      = TEAM_MAP.get(teamId)
-  const players   = getTeamPlayers(teamId)
+export function SquadTab({ team, players, onPlayerClick }: SquadTabProps) {
   const teamColor = team?.homeColor ?? '#2563eb'
 
   if (!players.length) {

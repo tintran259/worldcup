@@ -6,7 +6,7 @@
  */
 
 import type { Match, MatchEvent, Team } from '@/types/domain.types'
-import type { ExtendedTeam, GroupRow, StarPlayer } from '@/lib/mock/types'
+import type { ExtendedTeam, GroupRow, StarPlayer, TopScorer } from '@/lib/mock/types'
 
 // ── Provider names ────────────────────────────────────────────────────────────
 
@@ -41,6 +41,8 @@ export interface FootballProvider {
   getTeamsByTournament(params: LiveMatchParams): Promise<unknown[]>
   getGroupStandings(params: LiveMatchParams): Promise<unknown[]>
   getSquad(teamExternalId: string): Promise<unknown[]>
+  /** Top scorers cho tournament — sắp xếp theo số bàn thắng giảm dần */
+  getTopScorers(params: LiveMatchParams): Promise<unknown[]>
 }
 
 // ── Adapter interface ─────────────────────────────────────────────────────────
@@ -54,6 +56,8 @@ export interface ProviderAdapter {
   toExtendedTeam(raw: unknown): ExtendedTeam
   toGroupRow(raw: unknown): GroupRow
   toPlayer(raw: unknown): StarPlayer
+  /** Convert player+stats response → TopScorer (rank được set bởi repository) */
+  toTopScorer(raw: unknown, rank: number): TopScorer
 }
 
 // ── Bundle ────────────────────────────────────────────────────────────────────

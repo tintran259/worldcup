@@ -77,5 +77,13 @@ export function createApiFootballClient(apiKey: string): FootballProvider {
       const res = await http.get<AfResponse<AfPlayer>>('/players/squads', { team: teamExternalId })
       return res.response
     },
+
+    async getTopScorers(params: LiveMatchParams) {
+      const res = await http.get<AfResponse<AfPlayer>>('/players/topscorers', {
+        league: params.leagueId ?? '',
+        season: params.season ?? '2026',
+      })
+      return res.response
+    },
   }
 }

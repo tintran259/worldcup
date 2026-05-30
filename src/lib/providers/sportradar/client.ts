@@ -76,5 +76,10 @@ export function createSportradarClient(apiKey: string): FootballProvider {
       const res = await http.get<SrCompetitorProfile>(`/competitors/${teamExternalId}/profile.json`, withKey())
       return res.competitor?.players ?? []
     },
+
+    async getTopScorers(_params: LiveMatchParams) {
+      // Sportradar: TODO — chưa implement
+      return []
+    },
   }
 }

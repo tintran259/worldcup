@@ -14,12 +14,14 @@ import { createProviderChain } from './providers/chain'
 import { createMatchRepository } from './repositories/matches'
 import { createStandingsRepository } from './repositories/standings'
 import { createTeamRepository } from './repositories/teams'
+import { createStatsRepository } from './repositories/stats'
 import { getConfig } from './config'
 import type { Cache } from './cache'
 import type { ProviderBundle } from './providers/types'
 import type { MatchRepository } from './repositories/matches'
 import type { StandingsRepository } from './repositories/standings'
 import type { TeamRepository } from './repositories/teams'
+import type { StatsRepository } from './repositories/stats'
 
 // ── Lazy singletons (khởi tạo lần đầu khi cần, dùng lại sau đó) ──────────────
 
@@ -28,6 +30,7 @@ let _bundles: ProviderBundle[] | null = null
 let _matches: MatchRepository | null = null
 let _standings: StandingsRepository | null = null
 let _teams: TeamRepository | null = null
+let _stats: StatsRepository | null = null
 
 function getCache(): Cache {
   return (_cache ??= createCache(getConfig().cache.maxEntries))
@@ -61,7 +64,11 @@ export function getTeamRepository(): TeamRepository {
   return (_teams ??= createTeamRepository(getBundles(), getCache()))
 }
 
+export function getStatsRepository(): StatsRepository {
+  return (_stats ??= createStatsRepository(getBundles(), getCache()))
+}
+
 /** Reset tất cả singletons — dùng trong tests */
 export function resetServer(): void {
-  _cache = _bundles = _matches = _standings = _teams = null
+  _cache = _bundles = _matches = _standings = _teams = _stats = null
 }

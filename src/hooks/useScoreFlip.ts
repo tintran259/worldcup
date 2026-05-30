@@ -8,10 +8,10 @@ import { gsap } from 'gsap'
  * the score value changes. Safe on first render — only plays on updates.
  */
 export function useScoreFlip(
-  elRef:  React.RefObject<HTMLElement | null>,
-  score:  number | undefined,
+  elRef: React.RefObject<HTMLElement | null>,
+  score: number | undefined,
 ) {
-  const prev        = useRef<number | undefined>(score)
+  const prev = useRef<number | undefined>(score)
   const firstRender = useRef(true)
 
   useEffect(() => {
@@ -31,16 +31,16 @@ export function useScoreFlip(
     gsap.killTweensOf(el)
     gsap.timeline()
       .to(el, {
-        scale:      1.50,
+        scale: 1.50,
         textShadow: '0 0 18px rgba(251,191,36,0.80)',
-        duration:   0.12,
-        ease:       'power2.in',
+        duration: 0.12,
+        ease: 'power2.in',
       })
       .to(el, {
-        scale:      1.00,
+        scale: 1.00,
         textShadow: '0 0 0px rgba(251,191,36,0)',
-        duration:   0.45,
-        ease:       'elastic.out(1.3, 0.55)',
+        duration: 0.45,
+        ease: 'elastic.out(1.3, 0.55)',
       })
   }, [score, elRef])
 }

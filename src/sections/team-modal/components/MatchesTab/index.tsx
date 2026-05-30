@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MOCK_ROUNDS } from '@/lib/mock'
 import type { Match } from '@/types/domain.types'
 import {
   Root, SectionTitle, MatchList, MatchCard, ResultBadge,
@@ -67,15 +66,19 @@ const fadeUp = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-interface Props { teamId: string }
+export interface MatchesTabProps {
+  teamId:  string
+  matches: Match[]
+}
 
-export function MatchesTab({ teamId }: Props) {
-  const all = MOCK_ROUNDS.flatMap(r => r.matches)
-    .filter(m => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId)
+export function MatchesTab({ teamId, matches }: MatchesTabProps) {
+  // Matches đã được filter theo teamId từ BFF (/api/matches?teamId=)
+  // nhưng nếu data có nhiều hơn — vẫn filter để an toàn
+  const all = matches.filter((m) => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId)
 
-  const completed = all.filter(m => m.status === 'completed')
-  const live = all.filter(m => m.status === 'live')
-  const upcoming = all.filter(m => m.status === 'upcoming')
+  const completed = all.filter((m) => m.status === 'completed')
+  const live      = all.filter((m) => m.status === 'live')
+  const upcoming  = all.filter((m) => m.status === 'upcoming')
 
   return (
     <Root variants={stagger} initial="hidden" animate="visible">

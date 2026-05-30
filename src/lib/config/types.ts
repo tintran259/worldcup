@@ -15,6 +15,7 @@ export type ProviderName =
 
 export type CompetitionKey =
   | 'wc2026'
+  | 'wc2022'
   | 'euro2024'
   | 'copa-america-2024'
   | 'ucl'

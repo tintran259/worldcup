@@ -194,7 +194,7 @@ export function MatchCard({
         <TeamSide $align="left">
           {match.homeTeam ? (
             <>
-              <Flag countryCode={match.homeTeam.code} size="md" />
+              <Flag countryCode={match.homeTeam.code} flagUrl={match.homeTeam.flagUrl} size="md" />
               <TeamInfo $align="left">
                 <TeamName $isWinner={homeIsWinner}>
                   {match.homeTeam.shortName}
@@ -251,7 +251,7 @@ export function MatchCard({
                 </TeamName>
                 <TeamCode>{match.awayTeam.id}</TeamCode>
               </TeamInfo>
-              <Flag countryCode={match.awayTeam.code} size="md" />
+              <Flag countryCode={match.awayTeam.code} flagUrl={match.awayTeam.flagUrl} size="md" />
             </>
           ) : (
             <TbdTeam>Chưa xác định</TbdTeam>

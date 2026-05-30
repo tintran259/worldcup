@@ -63,5 +63,10 @@ export function createSportMonksClient(token: string): FootballProvider {
       const res = await http.get<SmResponse<SmPlayer[]>>(`/teams/${teamExternalId}/squad`, { include: INCLUDES.player })
       return Array.isArray(res.data) ? res.data : []
     },
+
+    async getTopScorers(_params: LiveMatchParams) {
+      // SportMonks: TODO — chưa implement
+      return []
+    },
   }
 }
