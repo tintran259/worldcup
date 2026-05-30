@@ -1,12 +1,57 @@
-export type MatchStatus = 'upcoming' | 'live' | 'completed' | 'postponed'
-export type TournamentRound =
-  | 'group'
-  | 'round-of-32'
-  | 'round-of-16'
-  | 'quarter-final'
-  | 'semi-final'
-  | 'third-place'
-  | 'final'
+// ── Re-export commons domain types (non-conflicting) ────────────────────────
+export type {
+  CountryCode,
+  ISODate,
+  ISODateTime,
+  Percentage,
+  MarketValue,
+  FormResult,
+  Confederation,
+  Coordinate,
+  DateRange,
+  PersonRef,
+  Paginated,
+  Timestamped,
+} from '@/types/football/common'
+
+export type {
+  CompetitionFormat,
+  Competition,
+} from '@/types/football/competition'
+
+export type {
+  PlayerPosition,
+  PlayerPerformance,
+} from '@/types/football/player'
+
+export type {
+  MatchStatistics,
+  TeamSeasonStats,
+} from '@/types/football/statistics'
+
+export type {
+  AdvanceStatus,
+  Standing,
+  GroupStage,
+} from '@/types/football/standing'
+
+export type {
+  LineupPlayer,
+  Lineup,
+} from '@/types/football/lineup'
+
+export type {
+  InjurySeverity,
+  Injury,
+} from '@/types/football/injury'
+
+export type {
+  Suspension,
+} from '@/types/football/suspension'
+
+// ── UI-focused type definitions (canonical for this codebase) ───────────────
+export type MatchStatus = 'upcoming' | 'live' | 'halftime' | 'completed' | 'postponed' | 'cancelled'
+export type TournamentRound = 'group' | 'round-of-32' | 'round-of-16' | 'quarter-final' | 'semi-final' | 'third-place' | 'final'
 
 export interface Team {
   id: string
