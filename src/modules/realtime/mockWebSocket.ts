@@ -1,127 +1,90 @@
 /**
- * MockWebSocketService
+ * Mock WebSocket — giả lập Socket.IO client interface.
  *
- * Mimics the browser WebSocket / Socket.IO-client interface so that
- * swapping to a real Socket.IO connection later requires changing only
- * this file — all consumers keep the same API.
- *
- *   Real Socket.IO swap:
- *     const socket = io('wss://api.example.com')
- *     socket.on('matchEvent', handler)
- *     socket.emit('subscribe', { matchIds })
+ * Đổi sang Socket.IO thật: chỉ cần thay file này.
+ *   const socket = io('wss://api.example.com')
+ *   socket.on('matchEvent', handler)
+ *   socket.emit('subscribe', { matchIds })
+ *   → phần còn lại (useRealtime, stores) không cần đổi.
  */
 
 import type { WSMatchEvent } from '@/types/events.types'
 import { eventBus, BUS_EVENTS } from './eventBus'
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
 
 export interface MockWSConfig {
   url: string
-  /** How long to simulate the initial handshake (ms) */
   connectDelayMs?: number
-  /** How often to send HEARTBEAT events (ms, 0 = disabled) */
   heartbeatMs?: number
   onStatusChange?: (status: ConnectionStatus) => void
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
+export function createMockWebSocket(config: MockWSConfig) {
+  let status: ConnectionStatus = 'idle'
+  let connectTimer: ReturnType<typeof setTimeout> | null = null
+  let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+  const subscribedMatchIds = new Set<string>()
 
-export class MockWebSocketService {
-  private status: ConnectionStatus = 'idle'
-  private connectTimer: ReturnType<typeof setTimeout> | null = null
-  private heartbeatTimer: ReturnType<typeof setInterval> | null = null
-  private readonly config: Required<MockWSConfig>
-  private subscribedMatchIds: Set<string> = new Set()
+  const connectDelay = config.connectDelayMs ?? 280 + Math.random() * 180
+  const heartbeatMs = config.heartbeatMs ?? 30_000
+  const onStatusChange = config.onStatusChange ?? (() => { })
 
-  constructor(config: MockWSConfig) {
-    this.config = {
-      connectDelayMs: 280 + Math.random() * 180,
-      heartbeatMs: 30_000,
-      onStatusChange: () => {},
-      ...config,
-    }
+  function setStatus(s: ConnectionStatus) {
+    status = s
+    onStatusChange(s)
   }
 
-  // ── Public API (mirrors Socket.IO / WebSocket) ──────────────────────────────
-
-  connect(): void {
-    if (this.status === 'connected' || this.status === 'connecting') return
-    this.setStatus('connecting')
-
-    this.connectTimer = setTimeout(() => {
-      this.setStatus('connected')
-      eventBus.emit(BUS_EVENTS.WS_CONNECTED, { url: this.config.url })
-      this.startHeartbeat()
-    }, this.config.connectDelayMs)
+  function cleanup() {
+    if (connectTimer) { clearTimeout(connectTimer); connectTimer = null }
+    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null }
   }
 
-  disconnect(): void {
-    this.cleanup()
-    this.setStatus('disconnected')
-    eventBus.emit(BUS_EVENTS.WS_CLOSED, {})
-  }
+  return {
+    connect() {
+      if (status === 'connected' || status === 'connecting') return
+      setStatus('connecting')
 
-  /**
-   * Subscribe to live updates for specific matches.
-   * (In real Socket.IO: socket.emit('subscribe', { matchIds }))
-   */
-  subscribe(matchIds: string[]): void {
-    matchIds.forEach((id) => this.subscribedMatchIds.add(id))
-  }
+      connectTimer = setTimeout(() => {
+        setStatus('connected')
+        eventBus.emit(BUS_EVENTS.WS_CONNECTED, { url: config.url })
 
-  unsubscribe(matchIds: string[]): void {
-    matchIds.forEach((id) => this.subscribedMatchIds.delete(id))
-  }
+        if (heartbeatMs) {
+          heartbeatTimer = setInterval(() => {
+            eventBus.emit(BUS_EVENTS.WS_MESSAGE, {
+              type: 'HEARTBEAT',
+              timestamp: Date.now(),
+            } satisfies WSMatchEvent)
+          }, heartbeatMs)
+        }
+      }, connectDelay)
+    },
 
-  isConnected(): boolean {
-    return this.status === 'connected'
-  }
+    disconnect() {
+      cleanup()
+      setStatus('disconnected')
+      eventBus.emit(BUS_EVENTS.WS_CLOSED, {})
+    },
 
-  getStatus(): ConnectionStatus {
-    return this.status
-  }
+    subscribe(matchIds: string[]) {
+      matchIds.forEach(id => subscribedMatchIds.add(id))
+    },
 
-  // ── Internal — called by SimulationEngine ───────────────────────────────────
+    unsubscribe(matchIds: string[]) {
+      matchIds.forEach(id => subscribedMatchIds.delete(id))
+    },
 
-  /**
-   * Push a simulated server event into the bus.
-   * Real Socket.IO equivalent: socket.emit() on the server side.
-   */
-  _dispatch(event: WSMatchEvent): void {
-    if (this.status !== 'connected') return
+    isConnected: () => status === 'connected',
+    getStatus: () => status,
 
-    // Filter to subscribed matches only (matches real WS filtering)
-    if ('matchId' in event && !this.subscribedMatchIds.has(event.matchId)) return
-
-    // Small random latency jitter to feel realistic (0–40 ms)
-    const jitter = Math.random() * 40
-    setTimeout(() => {
-      eventBus.emit(BUS_EVENTS.WS_MESSAGE, event)
-    }, jitter)
-  }
-
-  // ── Private ────────────────────────────────────────────────────────────────
-
-  private setStatus(status: ConnectionStatus): void {
-    this.status = status
-    this.config.onStatusChange(status)
-  }
-
-  private startHeartbeat(): void {
-    if (!this.config.heartbeatMs) return
-    this.heartbeatTimer = setInterval(() => {
-      eventBus.emit(BUS_EVENTS.WS_MESSAGE, {
-        type: 'HEARTBEAT',
-        timestamp: Date.now(),
-      } satisfies WSMatchEvent)
-    }, this.config.heartbeatMs)
-  }
-
-  private cleanup(): void {
-    if (this.connectTimer) { clearTimeout(this.connectTimer); this.connectTimer = null }
-    if (this.heartbeatTimer) { clearInterval(this.heartbeatTimer); this.heartbeatTimer = null }
+    /** Được gọi bởi SimulationEngine để đẩy event vào bus */
+    _dispatch(event: WSMatchEvent) {
+      if (status !== 'connected') return
+      if ('matchId' in event && !subscribedMatchIds.has(event.matchId)) return
+      // Jitter nhỏ để giống latency thật (0–40ms)
+      setTimeout(() => eventBus.emit(BUS_EVENTS.WS_MESSAGE, event), Math.random() * 40)
+    },
   }
 }
+
+export type MockWebSocket = ReturnType<typeof createMockWebSocket>

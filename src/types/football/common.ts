@@ -45,7 +45,7 @@ export interface Coordinate {
 
 export interface DateRange {
   from: ISODate
-  to:   ISODate
+  to: ISODate
 }
 
 /**
@@ -53,21 +53,21 @@ export interface DateRange {
  * similar roles where only identity is required, not a full profile.
  */
 export interface PersonRef {
-  id?:           string
-  name:          string
-  nationality?:  string
-  countryCode?:  CountryCode
+  id?: string
+  name: string
+  nationality?: string
+  countryCode?: CountryCode
 }
 
 // ── Generic wrappers ───────────────────────────────────────────────────────────
 
 /** Standard paginated response envelope */
 export interface Paginated<T> {
-  items:    T[]
-  total:    number
-  page:     number
-  perPage:  number
-  hasMore:  boolean
+  items: T[]
+  total: number
+  page: number
+  perPage: number
+  hasMore: boolean
 }
 
 /** Any domain entity that carries audit timestamps */

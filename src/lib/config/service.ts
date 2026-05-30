@@ -12,8 +12,8 @@
  *   import { getConfig, getCompetitionIds, isEnabled } from '@/lib/config'
  */
 
-import { loadConfig }          from './loader'
-import { clientEnvSchema }     from './env.schema'
+import { loadConfig } from './loader'
+import { clientEnvSchema } from './env.schema'
 import type {
   AppConfig,
   CacheConfig,
@@ -103,8 +103,8 @@ export function isEnabled(flag: keyof FeatureFlags): boolean {
  */
 export function getClientConfig(): ClientConfig {
   const result = clientEnvSchema.safeParse({
-    NEXT_PUBLIC_APP_ENV:     process.env.NEXT_PUBLIC_APP_ENV,
-    NEXT_PUBLIC_APP_NAME:    process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_COMPETITION: process.env.NEXT_PUBLIC_COMPETITION,
   })
 
@@ -114,8 +114,8 @@ export function getClientConfig(): ClientConfig {
   }
 
   const env = result.success ? result.data : {
-    NEXT_PUBLIC_APP_ENV:     'development' as const,
-    NEXT_PUBLIC_APP_NAME:    'Football Platform',
+    NEXT_PUBLIC_APP_ENV: 'development' as const,
+    NEXT_PUBLIC_APP_NAME: 'Football Platform',
     NEXT_PUBLIC_COMPETITION: 'wc2026' as const,
   }
 
@@ -124,21 +124,21 @@ export function getClientConfig(): ClientConfig {
   const comp = COMPETITIONS[env.NEXT_PUBLIC_COMPETITION]
 
   return {
-    appEnv:   env.NEXT_PUBLIC_APP_ENV,
-    appName:  env.NEXT_PUBLIC_APP_NAME,
+    appEnv: env.NEXT_PUBLIC_APP_ENV,
+    appName: env.NEXT_PUBLIC_APP_NAME,
     competition: {
-      key:           comp.key,
-      name:          comp.name,
-      shortName:     comp.shortName,
-      type:          comp.type,
+      key: comp.key,
+      name: comp.name,
+      shortName: comp.shortName,
+      type: comp.type,
       hasGroupStage: comp.hasGroupStage,
     },
     features: {
       // Feature flags aren't NEXT_PUBLIC, so they default to enabled on client
-      liveUpdates:  true,
-      realtimeSim:  true,
-      standings:    true,
-      stats:        true,
+      liveUpdates: true,
+      realtimeSim: true,
+      standings: true,
+      stats: true,
     },
   }
 }

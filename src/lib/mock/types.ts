@@ -97,20 +97,20 @@ export interface GroupStage {
 // ── Match statistics ──────────────────────────────────────────────────────────
 
 export interface MatchStats {
-  possession:      { home: number; away: number }
-  shots:           { home: number; away: number }
-  shotsOnTarget:   { home: number; away: number }
-  blockedShots:    { home: number; away: number }
-  corners:         { home: number; away: number }
-  fouls:           { home: number; away: number }
-  yellowCards:     { home: number; away: number }
-  redCards:        { home: number; away: number }
-  offsides:        { home: number; away: number }
-  saves:           { home: number; away: number }
-  passAccuracy:    { home: number; away: number }
-  xG:              { home: number; away: number }
-  bigChances:      { home: number; away: number }
-  bigChancesMissed:{ home: number; away: number }
+  possession: { home: number; away: number }
+  shots: { home: number; away: number }
+  shotsOnTarget: { home: number; away: number }
+  blockedShots: { home: number; away: number }
+  corners: { home: number; away: number }
+  fouls: { home: number; away: number }
+  yellowCards: { home: number; away: number }
+  redCards: { home: number; away: number }
+  offsides: { home: number; away: number }
+  saves: { home: number; away: number }
+  passAccuracy: { home: number; away: number }
+  xG: { home: number; away: number }
+  bigChances: { home: number; away: number }
+  bigChancesMissed: { home: number; away: number }
 }
 
 // ── Extended Match ────────────────────────────────────────────────────────────
@@ -160,11 +160,11 @@ export interface TopScorer {
 // ── Full tournament data object ───────────────────────────────────────────────
 
 export interface TournamentData {
-  meta:       TournamentMeta
-  stadiums:   Stadium[]
-  teams:      ExtendedTeam[]
-  groups:     GroupStage[]
-  matches:    ExtendedMatch[]
+  meta: TournamentMeta
+  stadiums: Stadium[]
+  teams: ExtendedTeam[]
+  groups: GroupStage[]
+  matches: ExtendedMatch[]
   topScorers: TopScorer[]
-  players:    StarPlayer[]
+  players: StarPlayer[]
 }

@@ -1,4 +1,4 @@
-import { TournamentLayout } from '@/modules/bracket/components/TournamentLayout'
+import { TournamentLayout } from '@/sections/bracket'
 
 export default function TournamentPage() {
   return <TournamentLayout />

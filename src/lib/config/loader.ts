@@ -9,7 +9,7 @@
  * so misconfigured deployments never silently serve stale or wrong data.
  */
 
-import { serverEnvSchema }    from './env.schema'
+import { serverEnvSchema } from './env.schema'
 import { getCompetitionByKey } from './competitions'
 import type {
   AppConfig,
@@ -29,7 +29,7 @@ export function loadConfig(): AppConfig {
 
   if (!result.success) {
     const lines = result.error.issues.map(
-      e => `  • ${(e.path as string[]).join('.')||'(root)'}: ${e.message}`,
+      e => `  • ${(e.path as string[]).join('.') || '(root)'}: ${e.message}`,
     )
     throw new Error(
       `[Config] Invalid environment — fix the following variables in .env.local:\n` +
@@ -59,11 +59,11 @@ export function loadConfig(): AppConfig {
       name: 'api-football',
       credentials: {
         apiKey: env.API_FOOTBALL_KEY,
-        host:   env.API_FOOTBALL_HOST,
+        host: env.API_FOOTBALL_HOST,
       },
       rateLimit: {
         requestsPerMinute: env.API_FOOTBALL_RATE_LIMIT_MINUTE,
-        requestsPerDay:    env.API_FOOTBALL_RATE_LIMIT_DAY,
+        requestsPerDay: env.API_FOOTBALL_RATE_LIMIT_DAY,
       },
     }
   }
@@ -75,7 +75,7 @@ export function loadConfig(): AppConfig {
       credentials: { token: env.SPORTMONKS_TOKEN },
       rateLimit: {
         requestsPerMinute: env.SPORTMONKS_RATE_LIMIT_MINUTE,
-        requestsPerDay:    env.SPORTMONKS_RATE_LIMIT_DAY,
+        requestsPerDay: env.SPORTMONKS_RATE_LIMIT_DAY,
       },
     }
   }
@@ -85,12 +85,12 @@ export function loadConfig(): AppConfig {
     allProviders['sportradar'] = {
       name: 'sportradar',
       credentials: {
-        apiKey:      env.SPORTRADAR_KEY,
+        apiKey: env.SPORTRADAR_KEY,
         accessLevel: env.SPORTRADAR_ACCESS_LEVEL as SportradarAccessLevel,
       },
       rateLimit: {
         requestsPerMinute: env.SPORTRADAR_RATE_LIMIT_MINUTE,
-        requestsPerDay:    env.SPORTRADAR_RATE_LIMIT_DAY,
+        requestsPerDay: env.SPORTRADAR_RATE_LIMIT_DAY,
       },
     }
   }
@@ -108,22 +108,22 @@ export function loadConfig(): AppConfig {
     competition,
     providers,
     cache: {
-      liveMatchTtlSec:   env.CACHE_LIVE_MATCH_TTL,
+      liveMatchTtlSec: env.CACHE_LIVE_MATCH_TTL,
       matchDetailTtlSec: env.CACHE_MATCH_DETAIL_TTL,
-      fixturesTtlSec:    env.CACHE_FIXTURES_TTL,
-      standingsTtlSec:   env.CACHE_STANDINGS_TTL,
-      teamTtlSec:        env.CACHE_TEAM_TTL,
-      maxEntries:        env.CACHE_MAX_ENTRIES,
+      fixturesTtlSec: env.CACHE_FIXTURES_TTL,
+      standingsTtlSec: env.CACHE_STANDINGS_TTL,
+      teamTtlSec: env.CACHE_TEAM_TTL,
+      maxEntries: env.CACHE_MAX_ENTRIES,
     },
     features: {
-      liveUpdates:  env.FEATURE_LIVE_UPDATES,
-      realtimeSim:  env.FEATURE_REALTIME_SIM,
-      standings:    env.FEATURE_STANDINGS,
-      stats:        env.FEATURE_STATS,
+      liveUpdates: env.FEATURE_LIVE_UPDATES,
+      realtimeSim: env.FEATURE_REALTIME_SIM,
+      standings: env.FEATURE_STANDINGS,
+      stats: env.FEATURE_STATS,
     },
     api: {
       rateLimitPerMinute: env.API_RATE_LIMIT_PER_MINUTE,
-      corsOrigins:        env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean),
+      corsOrigins: env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean),
     },
   }
 }
@@ -148,8 +148,8 @@ function dedup<T>(arr: T[]): T[] {
  * credentials or startup fails immediately.
  */
 function validateProviderChain(
-  chain:    ProviderName[],
-  all:      Partial<Record<ProviderName, ProviderConfig>>,
+  chain: ProviderName[],
+  all: Partial<Record<ProviderName, ProviderConfig>>,
 ): void {
   const unconfigured = chain.filter(name => !all[name])
 
@@ -177,8 +177,8 @@ function validateProviderChain(
 function credentialsEnvVar(provider: ProviderName): string {
   const map: Record<ProviderName, string> = {
     'api-football': 'API_FOOTBALL_KEY',
-    'sportmonks':   'SPORTMONKS_TOKEN',
-    'sportradar':   'SPORTRADAR_KEY',
+    'sportmonks': 'SPORTMONKS_TOKEN',
+    'sportradar': 'SPORTRADAR_KEY',
   }
   return map[provider]
 }

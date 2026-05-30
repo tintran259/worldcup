@@ -21,7 +21,7 @@ export const COMPETITION_KEYS = [
   'premier-league',
   'la-liga',
 ] as const
-export const ENVIRONMENTS  = ['development', 'test', 'staging', 'production'] as const
+export const ENVIRONMENTS = ['development', 'test', 'staging', 'production'] as const
 
 // ── Helper: boolean env var ────────────────────────────────────────────────────
 // "false" and "0" are false; everything else (including "true", "1", "yes") is true.
@@ -53,47 +53,47 @@ export const serverEnvSchema = z.object({
   FOOTBALL_FALLBACK: z.string().default(''),
 
   // ── API-Football credentials ───────────────────────────────────────────────
-  API_FOOTBALL_KEY:                z.string().optional(),
-  API_FOOTBALL_HOST:               z.string().default('v3.football.api-sports.io'),
-  API_FOOTBALL_RATE_LIMIT_MINUTE:  posInt(30),
-  API_FOOTBALL_RATE_LIMIT_DAY:     posInt(100),
+  API_FOOTBALL_KEY: z.string().optional(),
+  API_FOOTBALL_HOST: z.string().default('v3.football.api-sports.io'),
+  API_FOOTBALL_RATE_LIMIT_MINUTE: posInt(30),
+  API_FOOTBALL_RATE_LIMIT_DAY: posInt(100),
 
   // ── SportMonks credentials ─────────────────────────────────────────────────
-  SPORTMONKS_TOKEN:                z.string().optional(),
-  SPORTMONKS_RATE_LIMIT_MINUTE:    posInt(100),
-  SPORTMONKS_RATE_LIMIT_DAY:       posInt(3_000),
+  SPORTMONKS_TOKEN: z.string().optional(),
+  SPORTMONKS_RATE_LIMIT_MINUTE: posInt(100),
+  SPORTMONKS_RATE_LIMIT_DAY: posInt(3_000),
 
   // ── Sportradar credentials ─────────────────────────────────────────────────
-  SPORTRADAR_KEY:                  z.string().optional(),
-  SPORTRADAR_ACCESS_LEVEL:         z.enum(['trial', 'production']).default('trial'),
-  SPORTRADAR_RATE_LIMIT_MINUTE:    posInt(1),
-  SPORTRADAR_RATE_LIMIT_DAY:       posInt(1_000),
+  SPORTRADAR_KEY: z.string().optional(),
+  SPORTRADAR_ACCESS_LEVEL: z.enum(['trial', 'production']).default('trial'),
+  SPORTRADAR_RATE_LIMIT_MINUTE: posInt(1),
+  SPORTRADAR_RATE_LIMIT_DAY: posInt(1_000),
 
   // ── Cache ──────────────────────────────────────────────────────────────────
-  CACHE_LIVE_MATCH_TTL:    posInt(15),
-  CACHE_MATCH_DETAIL_TTL:  posInt(60),
-  CACHE_FIXTURES_TTL:      posInt(300),
-  CACHE_STANDINGS_TTL:     posInt(300),
-  CACHE_TEAM_TTL:          posInt(3_600),
-  CACHE_MAX_ENTRIES:       posInt(1_024),
+  CACHE_LIVE_MATCH_TTL: posInt(15),
+  CACHE_MATCH_DETAIL_TTL: posInt(60),
+  CACHE_FIXTURES_TTL: posInt(300),
+  CACHE_STANDINGS_TTL: posInt(300),
+  CACHE_TEAM_TTL: posInt(3_600),
+  CACHE_MAX_ENTRIES: posInt(1_024),
 
   // ── Feature flags ──────────────────────────────────────────────────────────
-  FEATURE_LIVE_UPDATES:  boolFlag(true),
-  FEATURE_REALTIME_SIM:  boolFlag(true),
-  FEATURE_STANDINGS:     boolFlag(true),
-  FEATURE_STATS:         boolFlag(true),
+  FEATURE_LIVE_UPDATES: boolFlag(true),
+  FEATURE_REALTIME_SIM: boolFlag(true),
+  FEATURE_STANDINGS: boolFlag(true),
+  FEATURE_STATS: boolFlag(true),
 
   // ── BFF API ────────────────────────────────────────────────────────────────
   API_RATE_LIMIT_PER_MINUTE: posInt(60),
-  CORS_ORIGINS:              z.string().default('http://localhost:3000'),
+  CORS_ORIGINS: z.string().default('http://localhost:3000'),
 })
 
 // ── Client-safe schema ─────────────────────────────────────────────────────────
 // NEXT_PUBLIC_* vars are baked into the browser bundle at build time.
 
 export const clientEnvSchema = z.object({
-  NEXT_PUBLIC_APP_ENV:     z.enum(ENVIRONMENTS).default('development'),
-  NEXT_PUBLIC_APP_NAME:    z.string().default('Football Platform'),
+  NEXT_PUBLIC_APP_ENV: z.enum(ENVIRONMENTS).default('development'),
+  NEXT_PUBLIC_APP_NAME: z.string().default('Football Platform'),
   NEXT_PUBLIC_COMPETITION: z.enum(COMPETITION_KEYS).default('wc2026'),
 })
 

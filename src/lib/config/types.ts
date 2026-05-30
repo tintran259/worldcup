@@ -32,40 +32,40 @@ export type SportradarAccessLevel = 'trial' | 'production'
 
 export interface ProviderCompetitionIds {
   // API-Football uses leagueId + season
-  leagueId?:    string
-  season?:      string
+  leagueId?: string
+  season?: string
   // SportMonks uses stageId + seasonId
-  stageId?:     string
-  seasonId?:    string
+  stageId?: string
+  seasonId?: string
   // Sportradar uses tournamentId + seasonId
   tournamentId?: string
   // date range for fixture queries
   dateFrom: string   // ISO date "YYYY-MM-DD"
-  dateTo:   string
+  dateTo: string
 }
 
 // ── Competition ────────────────────────────────────────────────────────────────
 
 export interface CompetitionConfig {
-  key:          CompetitionKey
-  name:         string                                       // display name
-  shortName:    string
-  type:         CompetitionType
+  key: CompetitionKey
+  name: string                                       // display name
+  shortName: string
+  type: CompetitionType
   hasGroupStage: boolean
   /** IDs keyed by provider name — only known providers are listed */
-  providerIds:  Partial<Record<ProviderName, ProviderCompetitionIds>>
+  providerIds: Partial<Record<ProviderName, ProviderCompetitionIds>>
 }
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
 export interface ProviderRateLimit {
   requestsPerMinute: number
-  requestsPerDay:    number
+  requestsPerDay: number
 }
 
 export interface ApiFootballCredentials {
   apiKey: string
-  host:   string
+  host: string
 }
 
 export interface SportMonksCredentials {
@@ -73,71 +73,71 @@ export interface SportMonksCredentials {
 }
 
 export interface SportradarCredentials {
-  apiKey:      string
+  apiKey: string
   accessLevel: SportradarAccessLevel
 }
 
 export type ProviderCredentials =
   | { provider: 'api-football'; creds: ApiFootballCredentials }
-  | { provider: 'sportmonks';   creds: SportMonksCredentials  }
-  | { provider: 'sportradar';   creds: SportradarCredentials  }
+  | { provider: 'sportmonks'; creds: SportMonksCredentials }
+  | { provider: 'sportradar'; creds: SportradarCredentials }
 
 export interface ProviderConfig {
-  name:       ProviderName
+  name: ProviderName
   credentials: ApiFootballCredentials | SportMonksCredentials | SportradarCredentials
-  rateLimit:  ProviderRateLimit
+  rateLimit: ProviderRateLimit
 }
 
 export interface ProvidersConfig {
   /** Ordered list: primary first, then fallbacks */
-  chain:   ProviderName[]
+  chain: ProviderName[]
   /** Per-provider settings indexed by name */
-  all:     Partial<Record<ProviderName, ProviderConfig>>
+  all: Partial<Record<ProviderName, ProviderConfig>>
 }
 
 // ── Cache ──────────────────────────────────────────────────────────────────────
 
 export interface CacheConfig {
-  liveMatchTtlSec:   number
+  liveMatchTtlSec: number
   matchDetailTtlSec: number
-  fixturesTtlSec:    number
-  standingsTtlSec:   number
-  teamTtlSec:        number
-  maxEntries:        number
+  fixturesTtlSec: number
+  standingsTtlSec: number
+  teamTtlSec: number
+  maxEntries: number
 }
 
 // ── Feature flags ──────────────────────────────────────────────────────────────
 
 export interface FeatureFlags {
-  liveUpdates:        boolean
-  realtimeSim:        boolean
-  standings:          boolean
-  stats:              boolean
+  liveUpdates: boolean
+  realtimeSim: boolean
+  standings: boolean
+  stats: boolean
 }
 
 // ── API ────────────────────────────────────────────────────────────────────────
 
 export interface ApiConfig {
   rateLimitPerMinute: number
-  corsOrigins:        string[]
+  corsOrigins: string[]
 }
 
 // ── Client-safe config (subset exposed to the browser) ────────────────────────
 
 export interface ClientConfig {
-  appEnv:      Environment
-  appName:     string
+  appEnv: Environment
+  appName: string
   competition: Pick<CompetitionConfig, 'key' | 'name' | 'shortName' | 'type' | 'hasGroupStage'>
-  features:    FeatureFlags
+  features: FeatureFlags
 }
 
 // ── Full AppConfig (server-only) ───────────────────────────────────────────────
 
 export interface AppConfig {
-  env:         Environment
+  env: Environment
   competition: CompetitionConfig
-  providers:   ProvidersConfig
-  cache:       CacheConfig
-  features:    FeatureFlags
-  api:         ApiConfig
+  providers: ProvidersConfig
+  cache: CacheConfig
+  features: FeatureFlags
+  api: ApiConfig
 }

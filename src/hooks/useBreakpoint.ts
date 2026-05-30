@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { breakpointValues } from '@/ui/theme/breakpoints'
+import { breakpointValues } from '@/theme/breakpoints'
 
 export type Breakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 

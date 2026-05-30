@@ -1,70 +1,56 @@
 /**
- * MatchTimer
+ * Match timer — đếm từng phút cho một trận đấu đang diễn ra.
  *
- * Manages the minute counter for a single live match.
- * Each "tick" corresponds to one match-minute.
- * Tick interval is configurable (1000ms = real-time, 350ms = fast demo).
- *
- * Extra-time: after 90 minutes the timer continues into 90+N territory
- * for a random 3-5 minute stoppage before firing onFullTime.
+ * Sau 90 phút sẽ vào thời gian bù (random 3–5 phút) rồi kết thúc.
+ * tickMs càng nhỏ → simulation càng nhanh (350ms = demo speed).
  */
 
 export interface MatchTimerOptions {
-  matchId:     string
+  matchId: string
   startMinute: number
-  tickMs:      number
-  onTick:      (matchId: string, minute: number) => void
-  onFullTime:  (matchId: string, minute: number) => void
+  tickMs: number
+  onTick: (matchId: string, minute: number) => void
+  onFullTime: (matchId: string, minute: number) => void
 }
 
-export class MatchTimer {
-  private readonly opts: MatchTimerOptions
-  private minute: number
-  private intervalId: ReturnType<typeof setInterval> | null = null
-  private stoppageTime = 0
-  private inStoppage   = false
+export function createMatchTimer(opts: MatchTimerOptions) {
+  let minute = opts.startMinute
+  let intervalId: ReturnType<typeof setInterval> | null = null
+  let inStoppage = false
 
-  constructor(opts: MatchTimerOptions) {
-    this.opts   = opts
-    this.minute = opts.startMinute
-    // Random stoppage: 3–5 minutes
-    this.stoppageTime = 3 + Math.floor(Math.random() * 3)
-  }
+  // Thời gian bù ngẫu nhiên 3–5 phút
+  const stoppageTime = 3 + Math.floor(Math.random() * 3)
 
-  // ── Public ──────────────────────────────────────────────────────────────────
+  function tick() {
+    minute++
+    if (minute === 90) inStoppage = true
 
-  start(): void {
-    if (this.intervalId) return
-    this.intervalId = setInterval(() => this.tick(), this.opts.tickMs)
-  }
+    opts.onTick(opts.matchId, minute)
 
-  stop(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId)
-      this.intervalId = null
+    if (inStoppage && minute >= 90 + stoppageTime) {
+      stop()
+      opts.onFullTime(opts.matchId, minute)
     }
   }
 
-  getMinute():  number { return this.minute }
-  getMatchId(): string { return this.opts.matchId }
-  isRunning():  boolean { return this.intervalId !== null }
+  function start() {
+    if (intervalId) return
+    intervalId = setInterval(tick, opts.tickMs)
+  }
 
-  // ── Private ─────────────────────────────────────────────────────────────────
+  function stop() {
+    if (!intervalId) return
+    clearInterval(intervalId)
+    intervalId = null
+  }
 
-  private tick(): void {
-    this.minute++
-
-    if (this.minute === 90) {
-      // Enter injury time
-      this.inStoppage = true
-    }
-
-    this.opts.onTick(this.opts.matchId, this.minute)
-
-    // Full-time: 90 + stoppage
-    if (this.inStoppage && this.minute >= 90 + this.stoppageTime) {
-      this.stop()
-      this.opts.onFullTime(this.opts.matchId, this.minute)
-    }
+  return {
+    start,
+    stop,
+    getMinute: () => minute,
+    getMatchId: () => opts.matchId,
+    isRunning: () => intervalId !== null,
   }
 }
+
+export type MatchTimer = ReturnType<typeof createMatchTimer>

@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Outfit, JetBrains_Mono } from 'next/font/google'
-import { StyledComponentsRegistry } from '@/lib/styled-registry'
-import { AppThemeProvider } from '@/lib/ThemeProvider'
-import { ReactQueryProvider } from '@/lib/ReactQueryProvider'
+import { StyledComponentsRegistry } from '@/providers/StyledRegistryProvider'
+import { AppThemeProvider } from '@/providers/ThemeProvider'
+import { ReactQueryProvider } from '@/providers/ReactQueryProvider'
 
 const inter = Inter({
   subsets: ['latin'],
