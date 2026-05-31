@@ -1,8 +1,9 @@
 'use client'
 
-import { useRealtime }           from '@/modules/realtime/useRealtime'
-import { LiveEventToast }         from '@/components/LiveEventToast'
-import { TeamModal }              from '@/sections/team-modal'
+import { useRealtime }            from '@/modules/realtime/useRealtime'
+import { LiveEventToast }          from '@/components/LiveEventToast'
+import { TeamModal }               from '@/sections/team-modal'
+import { FavoritesFilterModal }    from '@/sections/favorites-filter'
 import { liveBlobAnimate, liveBlobTransition } from './animations/blobs'
 import {
   Shell,
@@ -44,6 +45,7 @@ export function AppShell({ children, hasLiveMatches = false }: AppShellProps) {
       <RealtimeProvider />
       <LiveEventToast />
       <TeamModal />
+      <FavoritesFilterModal />
     </Shell>
   )
 }

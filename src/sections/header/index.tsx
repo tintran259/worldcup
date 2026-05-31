@@ -2,14 +2,14 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { LivePulse }           from '@/components/LivePulse'
-import { usePanelStore }        from '@/stores'
+import { usePanelStore, useFavoritesStore } from '@/stores'
 import { useBreakpoint }        from '@/hooks/useBreakpoint'
 import { useCompetition }       from '@/hooks/useCompetition'
 import { useHeaderStats }       from './hooks/useHeaderStats'
 import {
   TOURNAMENT_ROUNDS,
   ROUND_SHORT_LABELS,
-  CURRENT_PHASE_INDEX,
+  ROUND_LABELS_VI,
 } from '@/constants/tournament'
 import {
   headerEntrance,
@@ -41,18 +41,41 @@ import {
   PanelToggleBtn,
   ToggleIcon,
   MobilePanelBtn,
+  FilterBtn,
+  FilterBadge,
+  FilterLabel,
 } from './styles'
 
-// Phases shown in the progress dot trail (GS → R32 → R16 → QF → SF → F)
-const DISPLAY_PHASES = TOURNAMENT_ROUNDS
-  .filter((r) => r !== 'third-place')
-  .map((r) => ROUND_SHORT_LABELS[r])
+// Vòng đấu hiển thị trên progress dot trail (GS → R32 → R16 → QF → SF → F)
+// Bỏ 'third-place' vì không nằm trong main path của bracket.
+const DISPLAY_ROUNDS = TOURNAMENT_ROUNDS.filter((r) => r !== 'third-place')
+const DISPLAY_LABELS = DISPLAY_ROUNDS.map((r) => ROUND_SHORT_LABELS[r])
 
 export function Header() {
   const { isCollapsed, toggleCollapse, openMobilePanel, isMobileOpen } = usePanelStore()
   const { isMobile }                   = useBreakpoint()
-  const { liveCount, completedCount }  = useHeaderStats()
+  const {
+    liveCount,
+    completedCount,
+    currentRound,
+    isFinished,
+  } = useHeaderStats()
   const competition                    = useCompetition()
+
+  // Label trên phase pill — dynamic theo current round
+  const phaseLabel = isFinished
+    ? 'Đã kết thúc'
+    : ROUND_LABELS_VI[currentRound]
+
+  // Index của currentRound trong DISPLAY_ROUNDS (cho progress dots).
+  // Nếu giải đã xong → coi như cuối cùng (active dot cuối).
+  const displayPhaseIndex = isFinished
+    ? DISPLAY_ROUNDS.length - 1
+    : Math.max(0, DISPLAY_ROUNDS.indexOf(currentRound === 'third-place' ? 'final' : currentRound))
+
+  // Favorites filter — số đội đã chọn + mở modal
+  const { teamIds: favoriteIds, openModal: openFavorites } = useFavoritesStore()
+  const favCount = favoriteIds.length
 
   const handlePanelAction = () => {
     if (isMobile) openMobilePanel()
@@ -88,13 +111,13 @@ export function Header() {
           initial="hidden"
           animate="visible"
         >
-          <PhaseLabel>Vòng 32 đội</PhaseLabel>
+          <PhaseLabel>{phaseLabel}</PhaseLabel>
           <PhaseProgress>
-            {DISPLAY_PHASES.map((phase, idx) => (
+            {DISPLAY_LABELS.map((phase, idx) => (
               <ProgressDot
                 key={phase}
-                $active={idx === CURRENT_PHASE_INDEX}
-                $done={idx < CURRENT_PHASE_INDEX}
+                $active={idx === displayPhaseIndex}
+                $done={idx < displayPhaseIndex}
                 title={phase}
               />
             ))}
@@ -129,8 +152,29 @@ export function Header() {
         </AnimatePresence>
       </CenterSection>
 
-      {/* ── Right: connection status + panel toggle ── */}
+      {/* ── Right: filter + connection status + panel toggle ── */}
       <RightSection>
+        <FilterBtn
+          onClick={openFavorites}
+          whileTap={{ scale: 0.95 }}
+          $active={favCount > 0}
+          aria-label="Filter favorite teams"
+          title="Lọc theo đội yêu thích"
+        >
+          {/* Funnel icon */}
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path
+              d="M1 1.5h11l-4.2 5v4.5l-2.6-1.3V6.5L1 1.5z"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+          <FilterLabel>Đội yêu thích</FilterLabel>
+          {favCount > 0 && <FilterBadge>{favCount}</FilterBadge>}
+        </FilterBtn>
+
         <ConnectionGroup>
           <ConnectionDot
             $status="connected"

@@ -1,7 +1,7 @@
-import { cacheKey, TTL }   from '@/lib/cache'
-import { getProviderIds }  from '@/lib/config'
+import { cacheKey, TTL } from '@/lib/cache'
+import { getCompetition, getProviderIds } from '@/lib/config'
 import { RepositoryError } from '../providers/errors'
-import type { Cache }      from '@/lib/cache'
+import type { Cache } from '@/lib/cache'
 import type { ProviderBundle } from '../providers/types'
 import type { GroupRow, GroupStage } from '@/lib/mock/types'
 
@@ -33,11 +33,11 @@ export function createStandingsRepository(bundles: ProviderBundle[], cache: Cach
 
   return {
     async findAllGroups(): Promise<GroupStage[]> {
-      const ck     = cacheKey.standings('wc2026')
+      const ck = cacheKey.standings(getCompetition().key)
       const cached = await cache.get<GroupStage[]>(ck)
       if (cached) return cached
 
-      const rows   = await withFallback(async ({ provider, adapter }) => {
+      const rows = await withFallback(async ({ provider, adapter }) => {
         const params = getProviderIds(provider.name) ?? {}
         return (await provider.getGroupStandings(params)).map(r => adapter.toGroupRow(r))
       })

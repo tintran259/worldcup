@@ -25,13 +25,15 @@ export async function GET() {
 
     const [allMatches, topScorers] = await Promise.all([
       matchRepo.findAll(),
-      statsRepo.findTopScorers(5),
+      // Top 20 để khi user filter favorites vẫn thấy cầu thủ ngoài top 5
+      statsRepo.findTopScorers(20),
     ])
 
     const data: StatsResponse = {
       summary: statsRepo.computeSummary(allMatches),
       topScorers,
-      teamGoals: statsRepo.computeTeamGoals(allMatches, 5),
+      // Trả về top 32 — frontend tự slice/filter theo favorites
+      teamGoals: statsRepo.computeTeamGoals(allMatches, 32),
     }
 
     return Response.json(data, {

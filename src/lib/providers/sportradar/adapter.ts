@@ -91,7 +91,7 @@ export const sportradarAdapter: ProviderAdapter = {
     const s = raw as SrTeamStanding
     const formMap: Record<string, FormResult> = { win: 'W', draw: 'D', loss: 'L', lose: 'L' }
     return {
-      team: sportradarAdapter.toExtendedTeam({ id: s.team.id, name: s.team.name, abbreviation: s.team.abbreviation, country_code: s.team.country_code, country: '', gender: 'male' }),
+      team: sportradarAdapter.toExtendedTeam({ id: `af:${s.team.id}`, name: s.team.name, abbreviation: s.team.abbreviation, country_code: s.team.country_code, country: '', gender: 'male' }),
       position: s.rank, played: s.played, won: s.won, drawn: s.draw, lost: s.lost,
       goalsFor: s.goals_scored, goalsAgainst: s.goals_received, goalDifference: s.goal_diff,
       points: s.points, form: (s.form ?? []).map(f => formMap[f] ?? 'D'),

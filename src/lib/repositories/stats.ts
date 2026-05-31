@@ -13,6 +13,8 @@ import type { TopScorer } from '@/lib/mock/types'
 import type { Match } from '@/types/domain.types'
 
 export interface TeamGoals {
+  /** Team ID (dùng cho filter favorites) */
+  id:      string
   /** Mã quốc gia 3 ký tự (BRA, FRA, ARG...) */
   name:    string
   /** Mã quốc gia ISO2 (br, fr, ar...) cho cờ */
@@ -70,6 +72,7 @@ export function createStatsRepository(bundles: ProviderBundle[], cache: Cache) {
         if (m.status !== 'completed' || !m.score) continue
         if (m.homeTeam) {
           const t = map.get(m.homeTeam.id) ?? {
+            id:      m.homeTeam.id,
             name:    m.homeTeam.shortName,
             code:    m.homeTeam.code,
             flagUrl: m.homeTeam.flagUrl,
@@ -80,6 +83,7 @@ export function createStatsRepository(bundles: ProviderBundle[], cache: Cache) {
         }
         if (m.awayTeam) {
           const t = map.get(m.awayTeam.id) ?? {
+            id:      m.awayTeam.id,
             name:    m.awayTeam.shortName,
             code:    m.awayTeam.code,
             flagUrl: m.awayTeam.flagUrl,

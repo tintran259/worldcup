@@ -22,6 +22,15 @@ export interface FallbackOptions<T> {
 }
 
 /**
+ * Sanitize string for HTTP header value — header chỉ chấp nhận ASCII printable.
+ * Strip non-ASCII characters và giới hạn độ dài để tránh lỗi serialization.
+ */
+function sanitizeForHeader(input: string): string {
+  // eslint-disable-next-line no-control-regex
+  return input.replace(/[^\x20-\x7E]/g, '?').slice(0, 200)
+}
+
+/**
  * Trả response phù hợp:
  *   - Dev: mock data + header X-Data-Source: mock
  *   - Production: 503 + error message
@@ -34,9 +43,10 @@ export function handleProviderError<T>(opts: FallbackOptions<T>): Response {
     console.warn(`[/api/${opts.route}] Dev mode: fallback sang mock data`)
     return Response.json(opts.mockData, {
       headers: {
-        'X-Data-Source':  'mock',
-        'X-Mock-Reason':  message,
-        'Cache-Control':  'no-store',
+        'X-Data-Source': 'mock',
+        // HTTP headers chỉ chấp nhận ASCII — sanitize message tiếng Việt
+        'X-Mock-Reason': sanitizeForHeader(message),
+        'Cache-Control': 'no-store',
       },
     })
   }

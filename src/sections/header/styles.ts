@@ -297,3 +297,54 @@ export const MobilePanelBtn = styled(motion.button)`
 
   ${(p) => p.theme.mq.maxMd} { display: flex; }
 `
+
+// ── Favorites filter button ──────────────────────────────────────────────────
+
+export const FilterBtn = styled(motion.button)<{ $active: boolean }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: ${(p) => p.theme.space[1.5]};
+  padding: ${(p) => p.theme.space[1.5]} ${(p) => p.theme.space[3]};
+  border-radius: ${(p) => p.theme.radii.pill};
+  border: 1px solid ${(p) =>
+    p.$active ? p.theme.colors.accent.primary : p.theme.colors.border.glass};
+  background: ${(p) =>
+    p.$active ? 'rgba(37, 99, 235, 0.10)' : p.theme.glass.sm.background};
+  backdrop-filter: ${(p) => p.theme.glass.sm.backdropFilter};
+  color: ${(p) =>
+    p.$active ? p.theme.colors.accent.primary : p.theme.colors.text.secondary};
+  font-family: ${(p) => p.theme.fonts.body};
+  font-size: ${(p) => p.theme.fontSizes.xs};
+  font-weight: ${(p) => p.theme.fontWeights.semibold};
+  letter-spacing: ${(p) => p.theme.letterSpacings.wide};
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    border-color: ${(p) => p.theme.colors.accent.primary};
+    color: ${(p) => p.theme.colors.accent.primary};
+  }
+`
+
+// Badge số teams đã chọn (pill nhỏ bên cạnh icon)
+export const FilterBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: ${(p) => p.theme.colors.accent.primary};
+  color: #fff;
+  font-family: ${(p) => p.theme.fonts.mono};
+  font-size: 10px;
+  font-weight: ${(p) => p.theme.fontWeights.bold};
+  line-height: 1;
+`
+
+export const FilterLabel = styled.span`
+  ${(p) => p.theme.mq.maxMd} { display: none; }
+`

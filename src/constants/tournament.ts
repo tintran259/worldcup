@@ -40,8 +40,16 @@ export const ROUND_SHORT_LABELS: Record<TournamentRound, string> = {
   'final': 'F',
 }
 
-/** The current tournament phase (index into TOURNAMENT_ROUNDS). */
-export const CURRENT_PHASE_INDEX = 1  // Round of 32
+/** Vietnamese label cho từng vòng — dùng cho phase pill ở header. */
+export const ROUND_LABELS_VI: Record<TournamentRound, string> = {
+  'group':         'Vòng bảng',
+  'round-of-32':   'Vòng 32 đội',
+  'round-of-16':   'Vòng 16 đội',
+  'quarter-final': 'Tứ kết',
+  'semi-final':    'Bán kết',
+  'third-place':   'Tranh hạng 3',
+  'final':         'Chung kết',
+}
 
 /** Tournament host nations. */
 export const HOST_NATIONS = ['USA', 'Canada', 'Mexico'] as const

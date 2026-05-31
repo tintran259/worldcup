@@ -10,6 +10,7 @@ export const endpoints = {
     live: '/matches?status=live',
   },
   teams: {
+    list: '/teams',
     detail: (id: string) => `/teams/${encodeURIComponent(id)}`,
     withSquad: (id: string) => `/teams/${encodeURIComponent(id)}?squad=1`,
     stats: (id: string) => `/teams/${encodeURIComponent(id)}/stats`,

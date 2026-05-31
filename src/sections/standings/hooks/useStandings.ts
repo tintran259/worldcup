@@ -5,12 +5,17 @@
  *
  * Data flow:
  *   StandingsTab → useStandings → standingsService → /api/standings
+ *
+ * Khi user chọn favorites: chỉ giữ các bảng đấu chứa ít nhất 1 đội yêu thích.
+ * Các đội khác trong cùng bảng đó vẫn được hiển thị (để xem context).
  */
 
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { standingsService } from '../services/standings.service'
 import { queryKeys } from '@/queries/keys'
 import { GROUP_STANDINGS } from '@/lib/mock'
+import { useFavorites } from '@/hooks/useFavorites'
 import type { GroupStage } from '@/lib/mock/types'
 
 export interface UseStandingsReturn {
@@ -22,12 +27,22 @@ export function useStandings(): UseStandingsReturn {
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.standings.all,
     queryFn: () => standingsService.fetchAll(),
-    staleTime: 300_000,   // standings change slowly — cache for 5 minutes
+    staleTime: 300_000,
     refetchInterval: 300_000,
   })
 
+  const allGroups = (data as GroupStage[] | undefined) ?? GROUP_STANDINGS
+  const { favoriteIds, hasActiveFilter } = useFavorites()
+
+  const groups = useMemo(() => {
+    if (!hasActiveFilter) return allGroups
+    return allGroups.filter((g) =>
+      g.teams.some((row) => favoriteIds.has(row.team.id)),
+    )
+  }, [allGroups, favoriteIds, hasActiveFilter])
+
   return {
-    groups: (data as GroupStage[] | undefined) ?? GROUP_STANDINGS,
+    groups,
     isLoading: isLoading && !data,
   }
 }

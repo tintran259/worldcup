@@ -6,7 +6,7 @@
  */
 
 import type { ProviderAdapter } from '../types'
-import type { AfFixture, AfTeam, AfEvent, AfStanding, AfPlayer } from './api-football.types'
+import type { AfFixture, AfEvent, AfStanding, AfPlayer } from './api-football.types'
 import type { Match, MatchEvent, Team } from '@/types/domain.types'
 import type { ExtendedTeam, GroupRow, StarPlayer, FormResult, TopScorer } from '@/lib/mock/types'
 
@@ -119,15 +119,24 @@ export const apiFootballAdapter: ProviderAdapter = {
   },
 
   toTeam(raw: unknown): Team {
-    const t = raw as AfTeam
-    const code = t.team.code?.toLowerCase() ?? t.team.country.slice(0, 2).toLowerCase()
+    // Có thể nhận AfTeam (full với code+country) HOẶC AfTeamRef-like
+    // (chỉ có id+name+logo, dùng trong fixtures/standings response).
+    // Phải handle cả 2 case để tránh undefined.slice throw.
+    const t = raw as { team: { id: number; name: string; code?: string; country?: string; logo?: string } }
+    const team = t.team
+
+    const code =
+      team.code?.toLowerCase()
+      ?? team.country?.slice(0, 2).toLowerCase()
+      ?? team.name?.slice(0, 2).toLowerCase()
+      ?? 'xx'
+
     return {
-      id: `af:${t.team.id}`,
-      name: t.team.name,
-      shortName: t.team.code ?? t.team.name.slice(0, 3).toUpperCase(),
+      id:        `af:${team.id}`,
+      name:      team.name ?? '',
+      shortName: team.code ?? team.name?.slice(0, 3).toUpperCase() ?? '???',
       code,
-      // Ưu tiên logo từ API; fallback flagcdn theo ISO code
-      flagUrl: t.team.logo || `https://flagcdn.com/w40/${code}.png`,
+      flagUrl:   team.logo || `https://flagcdn.com/w40/${code}.png`,
     }
   },
 
@@ -150,8 +159,16 @@ export const apiFootballAdapter: ProviderAdapter = {
   toGroupRow(raw: unknown): GroupRow {
     const s = raw as AfStanding
     const form = (s.form ?? '').split('').filter(c => 'WDL'.includes(c)) as FormResult[]
+
+    // API trả "Group A", "Group B"... → tách lấy ký tự bảng
+    // (s.group có thể là "Group A" hoặc "A" tùy provider — handle cả hai)
+    const groupLetter = (s.group ?? '').replace(/^Group\s+/i, '').trim() || 'A'
+
+    // toExtendedTeam set group='' nên cần override sau khi gọi
+    const team = apiFootballAdapter.toExtendedTeam({ team: s.team, venue: {} })
+
     return {
-      team: apiFootballAdapter.toExtendedTeam({ team: s.team, venue: {} }),
+      team: { ...team, group: groupLetter },
       position: s.rank,
       played: s.all.played,
       won: s.all.win,
