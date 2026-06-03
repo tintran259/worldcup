@@ -12,13 +12,13 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
 
 export interface FallbackOptions<T> {
   /** Tên route để log (e.g. "matches", "standings") */
-  route:    string
+  route: string
   /** Lỗi gốc từ provider */
-  error:    unknown
+  error: unknown
   /** Dữ liệu mock để trả nếu đang ở dev mode */
   mockData: T
   /** HTTP status code khi production (default 503) */
-  status?:  number
+  status?: number
 }
 
 /**
@@ -26,7 +26,6 @@ export interface FallbackOptions<T> {
  * Strip non-ASCII characters và giới hạn độ dài để tránh lỗi serialization.
  */
 function sanitizeForHeader(input: string): string {
-  // eslint-disable-next-line no-control-regex
   return input.replace(/[^\x20-\x7E]/g, '?').slice(0, 200)
 }
 
@@ -36,11 +35,21 @@ function sanitizeForHeader(input: string): string {
  *   - Production: 503 + error message
  */
 export function handleProviderError<T>(opts: FallbackOptions<T>): Response {
-  const message = opts.error instanceof Error ? opts.error.message : String(opts.error)
-  console.error(`[/api/${opts.route}]`, message)
+  const err = opts.error
+  const message = err instanceof Error ? err.message : String(err)
+  const stack = err instanceof Error ? err.stack : undefined
+  const cause = err instanceof Error && 'cause' in err ? (err as { cause?: unknown }).cause : undefined
+
+  console.error(`\n╔═══ [/api/${opts.route}] PROVIDER ERROR ═══`)
+  console.error("║ IS_DEV:", IS_DEV)
+  console.error(`║ Type:    ${err instanceof Error ? err.name : typeof err}`)
+  console.error(`║ Message: ${message}`)
+  if (cause) console.error(`║ Cause:  `, cause)
+  if (stack) console.error(`║ Stack:\n${stack.split('\n').slice(0, 5).map(l => '║   ' + l).join('\n')}`)
+  console.error(`╚════════════════════════════════════════════\n`)
 
   if (IS_DEV) {
-    console.warn(`[/api/${opts.route}] Dev mode: fallback sang mock data`)
+    console.warn(`[/api/${opts.route}] → Dev: serving mock data (X-Data-Source: mock)`)
     return Response.json(opts.mockData, {
       headers: {
         'X-Data-Source': 'mock',
@@ -56,3 +65,4 @@ export function handleProviderError<T>(opts: FallbackOptions<T>): Response {
     { status: opts.status ?? 503 },
   )
 }
+

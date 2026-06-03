@@ -9,39 +9,41 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { teamService } from '../services/team.service'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { Match } from '@/types/domain.types'
 import type { ExtendedTeam, StarPlayer } from '@/lib/mock/types'
 
 export interface UseTeamDetailReturn {
-  team:     ExtendedTeam | null
-  players:  StarPlayer[]
-  matches:  Match[]
+  team: ExtendedTeam | null
+  players: StarPlayer[]
+  matches: Match[]
   isLoading: boolean
-  isError:   boolean
+  isError: boolean
 }
 
 export function useTeamDetail(teamId: string | null): UseTeamDetailReturn {
   const enabled = !!teamId
+  const { key: compKey } = useCompetition()
 
   const teamQuery = useQuery({
-    queryKey:  ['team-detail', teamId] as const,
-    queryFn:   () => teamService.fetchTeam(teamId!),
+    queryKey: ['team-detail', teamId, compKey] as const,
+    queryFn: () => teamService.fetchTeam(teamId!),
     enabled,
     staleTime: 3_600_000,   // 1h
   })
 
   const matchesQuery = useQuery({
-    queryKey:  ['team-matches', teamId] as const,
-    queryFn:   () => teamService.fetchMatches(teamId!),
+    queryKey: ['team-matches', teamId, compKey] as const,
+    queryFn: () => teamService.fetchMatches(teamId!),
     enabled,
     staleTime: 600_000,     // 10 phút
   })
 
   return {
-    team:    teamQuery.data ?? null,
+    team: teamQuery.data ?? null,
     players: teamQuery.data?.squad ?? [],
     matches: matchesQuery.data ?? [],
     isLoading: (teamQuery.isLoading || matchesQuery.isLoading) && !teamQuery.data,
-    isError:   teamQuery.isError || matchesQuery.isError,
+    isError: teamQuery.isError || matchesQuery.isError,
   }
 }

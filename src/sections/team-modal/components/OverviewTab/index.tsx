@@ -22,7 +22,7 @@ function getTeamGoals(teamId: string, matches: Match[]): { scored: number; conce
   for (const m of matches) {
     if (m.status !== 'completed' || !m.score) continue
     if (m.homeTeam?.id === teamId) { scored += m.score.home; conceded += m.score.away }
-    else                            { scored += m.score.away; conceded += m.score.home }
+    else { scored += m.score.away; conceded += m.score.home }
   }
   return { scored, conceded }
 }
@@ -31,39 +31,39 @@ function getTeamGoals(teamId: string, matches: Match[]): { scored: number; conce
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }
 const item = {
-  hidden:  { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.30, ease: [0.16, 1, 0.3, 1] as const } },
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export interface OverviewTabProps {
-  team:     ExtendedTeam | null
-  players:  StarPlayer[]
-  matches:  Match[]
+  team: ExtendedTeam | null
+  players: StarPlayer[]
+  matches: Match[]
 }
 
 export function OverviewTab({ team, players, matches }: OverviewTabProps) {
   if (!team) return null
 
-  const totalGoals    = players.reduce((s, p) => s + p.tournamentGoals, 0)
-  const totalAssists  = players.reduce((s, p) => s + p.tournamentAssists, 0)
-  const avgAge        = players.length
+  const totalGoals = players.reduce((s, p) => s + p.tournamentGoals, 0)
+  const totalAssists = players.reduce((s, p) => s + p.tournamentAssists, 0)
+  const avgAge = players.length
     ? Math.round(players.reduce((s, p) => s + p.age, 0) / players.length)
     : 0
-  const cleanSheets   = getCleanSheets(team.id, matches)
+  const cleanSheets = getCleanSheets(team.id, matches)
   const { scored, conceded } = getTeamGoals(team.id, matches)
   const completedCount = matches.filter(m => m.status === 'completed').length
 
   const stats = [
-    { label: 'Matches',       value: completedCount,                                       accent: '#3b82f6' },
-    { label: 'Goals Scored',  value: scored || totalGoals,                                 accent: '#10b981' },
-    { label: 'Goals Against', value: conceded,                                             accent: '#ef4444' },
-    { label: 'Assists',       value: totalAssists,                                         accent: '#8b5cf6' },
-    { label: 'Clean Sheets',  value: cleanSheets,                                          accent: '#06b6d4' },
-    { label: 'Squad Size',    value: players.length,                                       accent: '#f59e0b' },
-    { label: 'Avg Age',       value: avgAge || '—',                                        accent: '#64748b' },
-    { label: 'Top Scorers',   value: players.filter(p => p.tournamentGoals > 0).length,    accent: '#ec4899' },
+    { label: 'Matches', value: completedCount, accent: '#3b82f6' },
+    { label: 'Goals Scored', value: scored || totalGoals, accent: '#10b981' },
+    { label: 'Goals Against', value: conceded, accent: '#ef4444' },
+    { label: 'Assists', value: totalAssists, accent: '#8b5cf6' },
+    { label: 'Clean Sheets', value: cleanSheets, accent: '#06b6d4' },
+    { label: 'Squad Size', value: players.length, accent: '#f59e0b' },
+    { label: 'Avg Age', value: avgAge || '—', accent: '#64748b' },
+    { label: 'Top Scorers', value: players.filter(p => p.tournamentGoals > 0).length, accent: '#ec4899' },
   ]
 
   return (

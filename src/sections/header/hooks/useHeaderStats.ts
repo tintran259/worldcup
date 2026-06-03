@@ -20,6 +20,7 @@ import { headerService } from '../services/header.service'
 import { queryKeys }     from '@/queries/keys'
 import { MOCK_ROUNDS }   from '@/lib/mock'
 import { TOURNAMENT_ROUNDS } from '@/constants/tournament'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { Match, TournamentRound } from '@/types/domain.types'
 
 export interface UseHeaderStatsReturn {
@@ -58,11 +59,15 @@ function getEarliestRound(matches: Match[]): TournamentRound | null {
 }
 
 export function useHeaderStats(): UseHeaderStatsReturn {
+  const { key: compKey, isLive } = useCompetition()
+
+  // Cùng queryKey với useLiveMatches → share cache (1 request phục vụ cả 2 hooks).
+  // Polling chỉ khi giải đang live.
   const { data } = useQuery({
-    queryKey:        queryKeys.matches.list(),
+    queryKey:        [...queryKeys.matches.list(), compKey] as const,
     queryFn:         () => headerService.fetchAllMatches(),
-    staleTime:       0,
-    refetchInterval: 30_000,
+    staleTime:       isLive ? 30_000 : Infinity,
+    refetchInterval: isLive ? 60_000 : false,
   })
 
   const matches = data ?? MOCK_ROUNDS.flatMap((r) => r.matches)

@@ -26,7 +26,7 @@ export function createSimulationEngine() {
   let running = false
 
   function dispatch(event: WSMatchEvent) {
-    ws?._dispatch(event)
+    ws?._dispatch?.(event)
   }
 
   function handleTick(matchId: string, minute: number) {

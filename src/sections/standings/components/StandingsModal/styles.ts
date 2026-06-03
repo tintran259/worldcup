@@ -137,5 +137,5 @@ export const LegendDot = styled.span<{ $s: GroupRow['advanceStatus'] }>`
   border-radius: 50%;
   background: ${(p) =>
     p.$s === 'qualified' ? p.theme.colors.accent.primary :
-    p.$s === 'pending'   ? '#f59e0b' : '#cbd5e1'};
+      p.$s === 'pending' ? '#f59e0b' : '#cbd5e1'};
 `

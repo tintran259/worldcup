@@ -29,8 +29,8 @@ export function getMatchResult(
   if (match.winnerId) return match.winnerId === teamId ? 'W' : 'L'
 
   const isHome = match.homeTeam?.id === teamId
-  const ts     = isHome ? match.score.home : match.score.away
-  const os     = isHome ? match.score.away : match.score.home
+  const ts = isHome ? match.score.home : match.score.away
+  const os = isHome ? match.score.away : match.score.home
 
   if (ts > os) return 'W'
   if (ts < os) return 'L'

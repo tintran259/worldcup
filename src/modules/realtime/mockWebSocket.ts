@@ -1,17 +1,13 @@
 /**
- * Mock WebSocket — giả lập Socket.IO client interface.
+ * Mock WebSocket — implement RealtimeClient interface qua simulation engine.
  *
- * Đổi sang Socket.IO thật: chỉ cần thay file này.
- *   const socket = io('wss://api.example.com')
- *   socket.on('matchEvent', handler)
- *   socket.emit('subscribe', { matchIds })
- *   → phần còn lại (useRealtime, stores) không cần đổi.
+ * Dùng cho dev/demo khi chưa có backend real-time.
+ * Swap sang `createSSEClient` hoặc `createSocketIOClient` khi deploy thật.
  */
 
 import type { WSMatchEvent } from '@/types/events.types'
 import { eventBus, BUS_EVENTS } from './eventBus'
-
-export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
+import type { RealtimeClient, ConnectionStatus } from './types'
 
 export interface MockWSConfig {
   url: string
@@ -20,7 +16,7 @@ export interface MockWSConfig {
   onStatusChange?: (status: ConnectionStatus) => void
 }
 
-export function createMockWebSocket(config: MockWSConfig) {
+export function createMockWebSocket(config: MockWSConfig): RealtimeClient {
   let status: ConnectionStatus = 'idle'
   let connectTimer: ReturnType<typeof setTimeout> | null = null
   let heartbeatTimer: ReturnType<typeof setInterval> | null = null
@@ -87,4 +83,5 @@ export function createMockWebSocket(config: MockWSConfig) {
   }
 }
 
+/** @deprecated use RealtimeClient from './types' */
 export type MockWebSocket = ReturnType<typeof createMockWebSocket>

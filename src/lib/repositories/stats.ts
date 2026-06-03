@@ -5,7 +5,7 @@
  */
 
 import { TTL } from '@/lib/cache'
-import { getProviderIds } from '@/lib/config'
+import { getCurrentCompetition, getCurrentProviderIds } from '@/lib/config/competitionContext'
 import { RepositoryError } from '../providers/errors'
 import type { Cache } from '@/lib/cache'
 import type { ProviderBundle } from '../providers/types'
@@ -35,6 +35,13 @@ export interface StatsSummary {
 export function createStatsRepository(bundles: ProviderBundle[], cache: Cache) {
 
   async function withFallback<T>(fn: (b: ProviderBundle) => Promise<T>): Promise<T> {
+    if (bundles.length === 0) {
+      throw new RepositoryError(
+        'stats',
+        'No API provider configured. Add API_FOOTBALL_KEY to .env.local to fetch live data.',
+      )
+    }
+
     const errors: string[] = []
     for (const bundle of bundles) {
       try { return await fn(bundle) }
@@ -42,23 +49,22 @@ export function createStatsRepository(bundles: ProviderBundle[], cache: Cache) {
         errors.push(`${bundle.provider.name}: ${(err as Error).message}`)
       }
     }
-    throw new RepositoryError('stats', `Tất cả providers thất bại: ${errors.join(' | ')}`)
+    throw new RepositoryError('stats', `All providers failed. ${errors.join(' | ')}`)
   }
 
   return {
     async findTopScorers(limit = 5): Promise<TopScorer[]> {
-      const ck     = `topscorers:wc:${limit}`
-      const cached = await cache.get<TopScorer[]>(ck)
-      if (cached) return cached
-
-      const result = await withFallback(async ({ provider, adapter }) => {
-        const params = getProviderIds(provider.name) ?? {}
-        const raw    = await provider.getTopScorers(params)
-        return raw.slice(0, limit).map((r, i) => adapter.toTopScorer(r, i + 1))
-      })
-
-      await cache.set(ck, result, TTL.STANDINGS)
-      return result
+      // Cache key include competition.key để không serve topscorers giải cũ.
+      // getOrCompute: dedup concurrent requests.
+      return cache.getOrCompute(
+        `topscorers:${getCurrentCompetition().key}:${limit}`,
+        TTL.STANDINGS,
+        () => withFallback(async ({ provider, adapter }) => {
+          const params = getCurrentProviderIds(provider.name) ?? {}
+          const raw    = await provider.getTopScorers(params)
+          return raw.slice(0, limit).map((r, i) => adapter.toTopScorer(r, i + 1))
+        }),
+      )
     },
 
     /**

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { useEventFeedStore } from '@/stores'
 import type { FeedEvent } from '@/types/events.types'
 import { DismissBar, IconBadge, MinuteBadge, TextBlock, Toast, ToastStack, ToastSub, ToastTitle } from './styles'

@@ -12,18 +12,24 @@ import { matchHistoryService } from '../services/match-history.service'
 import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { Match } from '@/types/domain.types'
 
 export interface UseMatchHistoryReturn {
   completedMatches: Match[]
-  isLoading:        boolean
+  isLoading: boolean
 }
 
 export function useMatchHistory(): UseMatchHistoryReturn {
+  const { key: compKey } = useCompetition()
+
+  // KHÔNG polling — trận đã kết thúc không thay đổi.
+  // Fetch 1 lần khi đổi competition rồi giữ vĩnh viễn.
   const { data, isLoading } = useQuery({
-    queryKey: queryKeys.matches.list('completed'),
-    queryFn:  () => matchHistoryService.fetchCompleted(),
-    staleTime: 60_000,
+    queryKey: [...queryKeys.matches.list('completed'), compKey] as const,
+    queryFn: () => matchHistoryService.fetchCompleted(),
+    staleTime: Infinity,
+    refetchInterval: false,
   })
 
   const mockCompleted = MOCK_ROUNDS

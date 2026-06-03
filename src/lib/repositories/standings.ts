@@ -1,5 +1,5 @@
 import { cacheKey, TTL } from '@/lib/cache'
-import { getCompetition, getProviderIds } from '@/lib/config'
+import { getCurrentCompetition, getCurrentProviderIds } from '@/lib/config/competitionContext'
 import { RepositoryError } from '../providers/errors'
 import type { Cache } from '@/lib/cache'
 import type { ProviderBundle } from '../providers/types'
@@ -8,15 +8,22 @@ import type { GroupRow, GroupStage } from '@/lib/mock/types'
 export function createStandingsRepository(bundles: ProviderBundle[], cache: Cache) {
 
   async function withFallback<T>(fn: (b: ProviderBundle) => Promise<T>): Promise<T> {
+    if (bundles.length === 0) {
+      throw new RepositoryError(
+        'standings',
+        'No API provider configured. Add API_FOOTBALL_KEY to .env.local to fetch live data.',
+      )
+    }
+
     const errors: string[] = []
     for (const bundle of bundles) {
       try { return await fn(bundle) }
       catch (err) {
         errors.push(`${bundle.provider.name}: ${(err as Error).message}`)
-        console.warn(`[StandingsRepository] ${bundle.provider.name} thất bại`)
+        console.warn(`[StandingsRepository] ${bundle.provider.name} failed`)
       }
     }
-    throw new RepositoryError('standings', `Tất cả providers thất bại: ${errors.join(' | ')}`)
+    throw new RepositoryError('standings', `All providers failed. ${errors.join(' | ')}`)
   }
 
   // Build GroupStage[] từ flat GroupRow[]
@@ -33,17 +40,16 @@ export function createStandingsRepository(bundles: ProviderBundle[], cache: Cach
 
   return {
     async findAllGroups(): Promise<GroupStage[]> {
-      const ck = cacheKey.standings(getCompetition().key)
-      const cached = await cache.get<GroupStage[]>(ck)
-      if (cached) return cached
+      const ck = cacheKey.standings(getCurrentCompetition().key)
 
-      const rows = await withFallback(async ({ provider, adapter }) => {
-        const params = getProviderIds(provider.name) ?? {}
-        return (await provider.getGroupStandings(params)).map(r => adapter.toGroupRow(r))
+      // getOrCompute: 100 concurrent requests miss cùng key → chỉ 1 call API.
+      return cache.getOrCompute(ck, TTL.STANDINGS, async () => {
+        const rows = await withFallback(async ({ provider, adapter }) => {
+          const params = getCurrentProviderIds(provider.name) ?? {}
+          return (await provider.getGroupStandings(params)).map(r => adapter.toGroupRow(r))
+        })
+        return buildGroupStages(rows)
       })
-      const groups = buildGroupStages(rows)
-      await cache.set(ck, groups, TTL.STANDINGS)
-      return groups
     },
 
     async findGroup(groupId: string): Promise<GroupStage | null> {

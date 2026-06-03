@@ -9,7 +9,7 @@
  *   const repo = getMatchRepository()
  */
 
-import { createCache } from './cache'
+import { createCache, createRedisCache } from './cache'
 import { createProviderChain } from './providers/chain'
 import { createMatchRepository } from './repositories/matches'
 import { createStandingsRepository } from './repositories/standings'
@@ -32,8 +32,35 @@ let _standings: StandingsRepository | null = null
 let _teams: TeamRepository | null = null
 let _stats: StatsRepository | null = null
 
+/**
+ * Tạo cache singleton. Pick implementation theo env:
+ *   - Cả UPSTASH_REDIS_REST_URL + TOKEN có   → RedisCache (shared across instances)
+ *   - Không có                                 → MemoryCache (per-instance)
+ *
+ * Production multi-instance: PHẢI dùng Redis để share cache.
+ * Local dev / single instance: memory ổn.
+ */
 function getCache(): Cache {
-  return (_cache ??= createCache(getConfig().cache.maxEntries))
+  if (_cache) return _cache
+
+  const cfg = getConfig().cache
+
+  if (cfg.redis) {
+    console.log(
+      `[server] Using RedisCache (Upstash) — url=${cfg.redis.url.replace(/^https?:\/\//, '').slice(0, 30)}...`,
+    )
+    _cache = createRedisCache({
+      url:       cfg.redis.url,
+      token:     cfg.redis.token,
+      keyPrefix: cfg.redis.keyPrefix,
+      timeoutMs: cfg.redis.timeoutMs,
+    })
+  } else {
+    console.log(`[server] Using MemoryCache (maxEntries=${cfg.maxEntries}) — set UPSTASH_REDIS_REST_URL + TOKEN to enable Redis`)
+    _cache = createCache(cfg.maxEntries)
+  }
+
+  return _cache
 }
 
 function getBundles(): ProviderBundle[] {

@@ -41,6 +41,12 @@ export interface FootballProvider {
   getTeamsByTournament(params: LiveMatchParams): Promise<unknown[]>
   getGroupStandings(params: LiveMatchParams): Promise<unknown[]>
   getSquad(teamExternalId: string): Promise<unknown[]>
+  /**
+   * Players + statistics chi tiết của team trong league/season.
+   * Khác getSquad ở chỗ có goals/assists/cards/minutes.
+   * Pagination: provider tự xử lý, trả về tất cả players.
+   */
+  getTeamPlayersWithStats(teamExternalId: string, params: LiveMatchParams): Promise<unknown[]>
   /** Top scorers cho tournament — sắp xếp theo số bàn thắng giảm dần */
   getTopScorers(params: LiveMatchParams): Promise<unknown[]>
 }

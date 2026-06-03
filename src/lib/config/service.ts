@@ -7,23 +7,11 @@
  *
  * SERVER ONLY — never import this in client components.
  * For client components, import getClientConfig() from './index'.
- *
- * Usage:
- *   import { getConfig, getCompetitionIds, isEnabled } from '@/lib/config'
  */
 
 import { loadConfig } from './loader'
 import { clientEnvSchema } from './env.schema'
-import type {
-  AppConfig,
-  CacheConfig,
-  CompetitionConfig,
-  FeatureFlags,
-  ProviderCompetitionIds,
-  ProviderConfig,
-  ProviderName,
-  ClientConfig,
-} from './types'
+import type { AppConfig, CompetitionConfig, ProviderName, ClientConfig } from './types'
 
 // ── Singleton ─────────────────────────────────────────────────────────────────
 
@@ -40,11 +28,6 @@ export function getConfig(): AppConfig {
   return _config
 }
 
-/** Force config re-evaluation — use ONLY in tests. */
-export function resetConfig(): void {
-  _config = null
-}
-
 // ── Shortcut helpers ──────────────────────────────────────────────────────────
 
 /** Current active competition configuration */
@@ -53,43 +36,11 @@ export function getCompetition(): CompetitionConfig {
 }
 
 /**
- * Provider-specific tournament identifiers for the active competition.
- * Use these in repository calls instead of hardcoded IDs.
- *
- * @returns IDs bag for the provider, or null if the competition
- *          doesn't have IDs configured for that provider.
- */
-export function getProviderIds(
-  providerName: ProviderName,
-): ProviderCompetitionIds | null {
-  const ids = getConfig().competition.providerIds[providerName]
-  return ids ?? null
-}
-
-/**
  * Ordered provider chain: primary first, then fallbacks.
  * Only includes providers that have credentials.
  */
 export function getProviderChain(): ProviderName[] {
   return getConfig().providers.chain
-}
-
-/**
- * Config for a specific provider. Returns null if the provider
- * is not configured (no credentials).
- */
-export function getProviderConfig(name: ProviderName): ProviderConfig | null {
-  return getConfig().providers.all[name] ?? null
-}
-
-/** Cache TTL configuration object */
-export function getCacheConfig(): CacheConfig {
-  return getConfig().cache
-}
-
-/** Check whether a feature flag is enabled */
-export function isEnabled(flag: keyof FeatureFlags): boolean {
-  return getConfig().features[flag]
 }
 
 // ── Client-safe config ────────────────────────────────────────────────────────

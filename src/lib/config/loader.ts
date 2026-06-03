@@ -114,6 +114,15 @@ export function loadConfig(): AppConfig {
       standingsTtlSec: env.CACHE_STANDINGS_TTL,
       teamTtlSec: env.CACHE_TEAM_TTL,
       maxEntries: env.CACHE_MAX_ENTRIES,
+      // Redis chỉ enable khi cả url+token được set (avoid partial config)
+      redis: env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
+        ? {
+            url:       env.UPSTASH_REDIS_REST_URL,
+            token:     env.UPSTASH_REDIS_REST_TOKEN,
+            keyPrefix: env.REDIS_KEY_PREFIX,
+            timeoutMs: env.REDIS_TIMEOUT_MS,
+          }
+        : undefined,
     },
     features: {
       liveUpdates: env.FEATURE_LIVE_UPDATES,
@@ -155,17 +164,28 @@ function validateProviderChain(
 
   if (unconfigured.length === 0) return
 
+  const isDev = process.env.NODE_ENV !== 'production'
   const [primary, ...rest] = chain
+
   if (!all[primary]) {
-    // Primary provider has no credentials — hard fail
     const keyVar = credentialsEnvVar(primary)
-    throw new Error(
-      `[Config] Primary provider "${primary}" has no credentials. ` +
-      `Set ${keyVar} in .env.local.`,
-    )
+    const message =
+      `Primary provider "${primary}" has no credentials. ` +
+      `Set ${keyVar} in .env.local.`
+
+    if (isDev) {
+      // Dev: warn → BFF routes sẽ tự fallback về mock data
+      console.warn(
+        `[Config] ${message} ` +
+        `→ Dev mode: sẽ dùng mock data thay thế.`,
+      )
+    } else {
+      // Production: hard fail để không silently serve mock
+      throw new Error(`[Config] ${message}`)
+    }
   }
 
-  // Fallbacks with no credentials: warn, do not throw
+  // Fallbacks không có credentials: warn, không throw
   rest.filter(n => !all[n]).forEach(name => {
     console.warn(
       `[Config] Fallback provider "${name}" has no credentials and will be skipped. ` +

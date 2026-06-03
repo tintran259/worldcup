@@ -15,22 +15,26 @@ import { liveMatchesService } from '../services/live-matches.service'
 import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { Match } from '@/types/domain.types'
 
 export interface UseLiveMatchesReturn {
-  liveMatches:      Match[]
-  upcomingMatches:  Match[]
+  liveMatches: Match[]
+  upcomingMatches: Match[]
   completedMatches: Match[]
-  isLoading:        boolean
+  isLoading: boolean
 }
 
 export function useLiveMatches(): UseLiveMatchesReturn {
+  const { key: compKey, isLive } = useCompetition()
+
   const { data, isLoading } = useQuery({
-    queryKey: queryKeys.matches.list(),
-    queryFn:  () => liveMatchesService.fetchAll(),
-    staleTime: 0,
-    refetchInterval: 30_000,
-    refetchIntervalInBackground: true,
+    queryKey: [...queryKeys.matches.list(), compKey] as const,
+    queryFn: () => liveMatchesService.fetchAll(),
+    // Giải đã xong → data tĩnh, không cần polling.
+    // Giải đang live → poll 60s (đã giảm từ 30s để tiết kiệm quota).
+    staleTime: isLive ? 30_000 : Infinity,
+    refetchInterval: isLive ? 60_000 : false,
   })
 
   const mockMatches = MOCK_ROUNDS.flatMap((r) => r.matches)
@@ -42,19 +46,19 @@ export function useLiveMatches(): UseLiveMatchesReturn {
     // Live luôn được giữ — không filter
     const live = matches.filter((m) => m.status === 'live')
 
-    let upcoming  = matches.filter((m) => m.status === 'upcoming')
+    let upcoming = matches.filter((m) => m.status === 'upcoming')
     let completed = matches.filter((m) => m.status === 'completed')
 
     if (hasActiveFilter) {
-      upcoming  = upcoming.filter(matchInvolvesFavorite)
+      upcoming = upcoming.filter(matchInvolvesFavorite)
       completed = completed.filter(matchInvolvesFavorite)
     }
 
     return {
-      liveMatches:      live,
-      upcomingMatches:  upcoming.slice(0, 6),
+      liveMatches: live,
+      upcomingMatches: upcoming.slice(0, 6),
       completedMatches: completed.slice(0, 3),
-      isLoading:        isLoading && !data,
+      isLoading: isLoading && !data,
     }
   }, [matches, matchInvolvesFavorite, hasActiveFilter, isLoading, data])
 }

@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query'
 import { bracketService } from '../services/bracket.service'
 import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { BracketRound } from '@/types/domain.types'
 
 export interface UseBracketDataReturn {
@@ -25,11 +26,13 @@ export interface UseBracketDataReturn {
 }
 
 export function useBracketData(): UseBracketDataReturn {
+  const { key: compKey } = useCompetition()
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: queryKeys.tournament.bracket(),
+    queryKey: [...queryKeys.tournament.bracket(), compKey] as const,
     queryFn: () => bracketService.fetchRounds(),
-    staleTime: 60_000,
-    refetchInterval: 60_000,
+    staleTime: Infinity,
+    refetchInterval: false,
   })
 
   // Fall back to mock data when the API is unavailable

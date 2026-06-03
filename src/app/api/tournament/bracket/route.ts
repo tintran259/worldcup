@@ -4,9 +4,12 @@
  * Returns: BracketRound[] — matches grouped by round in tournament order.
  */
 
+import { NextRequest } from 'next/server'
 import { getMatchRepository } from '@/lib/server'
 import { MOCK_ROUNDS } from '@/lib/mock'
+import { withCompetition } from '@/lib/config/competitionContext'
 import { handleProviderError } from '../../_helpers'
+import { cacheHeaders } from '@/lib/cache'
 import type { BracketRound, Match, TournamentRound } from '@/types/domain.types'
 
 export const dynamic = 'force-dynamic'
@@ -47,17 +50,22 @@ function groupIntoRounds(matches: Match[]): BracketRound[] {
     }))
 }
 
-export async function GET() {
-  try {
-    const matches = await getMatchRepository().findAll()
-    return Response.json(groupIntoRounds(matches), {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
-    })
-  } catch (error) {
-    return handleProviderError({
-      route:    'tournament/bracket',
-      error,
-      mockData: MOCK_ROUNDS,
-    })
-  }
+export async function GET(request: NextRequest) {
+  const competitionKey = request.nextUrl.searchParams.get('competition')
+
+  return withCompetition(competitionKey, async () => {
+    try {
+      const matches = await getMatchRepository().findAll()
+      const rounds  = groupIntoRounds(matches)
+      // Empty là OK — section sẽ render empty state với title "Tournament Bracket".
+      // Popup chỉ fire khi catch (lỗi thật từ provider).
+      return Response.json(rounds, { headers: cacheHeaders('BRACKET') })
+    } catch (error) {
+      return handleProviderError({
+        route:    'tournament/bracket',
+        error,
+        mockData: MOCK_ROUNDS,
+      })
+    }
+  })
 }

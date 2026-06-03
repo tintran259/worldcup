@@ -35,6 +35,7 @@ export const MatchCard = styled(motion.div)<{ $status: Match['status'] }>`
   gap: 12px;
   position: relative;
   overflow: hidden;
+  ${(p) => p.theme.mq.maxMd} { padding: 12px 12px; gap: 10px; }
 
   ${(p) => p.$status === 'live' && `
     background: linear-gradient(150deg, rgba(254,226,226,0.60) 0%, white 50%);
@@ -56,6 +57,7 @@ export const ResultBadge = styled.div<{ $r: 'W' | 'D' | 'L' | null }>`
   font-family: ${(p) => p.theme.fonts.broadcast};
   font-size: 11px;
   font-weight: ${(p) => p.theme.fontWeights.black};
+  ${(p) => p.theme.mq.maxSm} { width: 24px; height: 24px; font-size: 10px; }
   background: ${(p) =>
     p.$r === 'W' ? 'rgba(16,185,129,0.12)' :
     p.$r === 'L' ? 'rgba(239,68,68,0.12)'  :
@@ -79,6 +81,9 @@ export const OpponentRow = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  ${(p) => p.theme.mq.maxSm} { gap: 5px; }
 `
 
 export const OpponentFlag = styled.span`
@@ -91,6 +96,10 @@ export const OpponentName = styled.span`
   font-size: ${(p) => p.theme.fontSizes.sm};
   font-weight: ${(p) => p.theme.fontWeights.semibold};
   color: ${(p) => p.theme.colors.text.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 `
 
 export const HomeBadge = styled.span`
@@ -103,6 +112,9 @@ export const HomeBadge = styled.span`
   border: 1px solid ${(p) => p.theme.colors.border.subtle};
   border-radius: 4px;
   padding: 1px 5px;
+  flex-shrink: 0;
+  /* Ẩn HOME/AWAY badge trên màn rất nhỏ — không quá quan trọng */
+  ${(p) => p.theme.mq.maxSm} { display: none; }
 `
 
 export const MatchMeta = styled.div`
@@ -110,6 +122,8 @@ export const MatchMeta = styled.div`
   align-items: center;
   gap: 6px;
   margin-top: 3px;
+  flex-wrap: wrap;
+  ${(p) => p.theme.mq.maxSm} { gap: 4px; }
 `
 
 export const MetaText = styled.span`
@@ -117,6 +131,11 @@ export const MetaText = styled.span`
   font-size: 10px;
   color: ${(p) => p.theme.colors.text.muted};
   letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  ${(p) => p.theme.mq.maxSm} { font-size: 9px; }
 `
 
 export const MetaDot = styled.span`
@@ -137,6 +156,8 @@ export const ScoreText = styled.div<{ $status: Match['status'] }>`
   color: ${(p) => p.$status === 'live' ? p.theme.colors.accent.live : p.theme.colors.text.primary};
   line-height: 1;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  ${(p) => p.theme.mq.maxMd} { font-size: ${(p) => p.theme.fontSizes.lg}; }
 `
 
 export const LivePill = styled.span`
@@ -165,6 +186,8 @@ export const ScheduleDate = styled.div`
   font-weight: ${(p) => p.theme.fontWeights.bold};
   color: ${(p) => p.theme.colors.text.primary};
   line-height: 1.2;
+  white-space: nowrap;
+  ${(p) => p.theme.mq.maxSm} { font-size: ${(p) => p.theme.fontSizes.xs}; }
 `
 
 export const ScheduleTime = styled.div`
@@ -172,6 +195,8 @@ export const ScheduleTime = styled.div`
   font-size: 10px;
   color: ${(p) => p.theme.colors.accent.primary};
   margin-top: 2px;
+  white-space: nowrap;
+  ${(p) => p.theme.mq.maxSm} { font-size: 9px; }
 `
 
 export const RoundTag = styled.span`
@@ -182,6 +207,8 @@ export const RoundTag = styled.span`
   background: rgba(37,99,235,0.08);
   color: ${(p) => p.theme.colors.accent.primary};
   border: 1px solid rgba(37,99,235,0.16);
+  flex-shrink: 0;
+  white-space: nowrap;
   border-radius: 4px;
   padding: 1px 6px;
 `

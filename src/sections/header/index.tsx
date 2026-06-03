@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { LivePulse }           from '@/components/LivePulse'
-import { usePanelStore, useFavoritesStore } from '@/stores'
+import { usePanelStore, useFavoritesStore, useCompetitionStore } from '@/stores'
 import { useBreakpoint }        from '@/hooks/useBreakpoint'
 import { useCompetition }       from '@/hooks/useCompetition'
 import { useHeaderStats }       from './hooks/useHeaderStats'
@@ -22,7 +22,9 @@ import {
   LogoMark,
   FifaWordmark,
   HeaderDivider,
+  TitleButton,
   TitleBlock,
+  TitleChevron,
   TournamentYear,
   TournamentSubtitle,
   CenterSection,
@@ -73,6 +75,9 @@ export function Header() {
     ? DISPLAY_ROUNDS.length - 1
     : Math.max(0, DISPLAY_ROUNDS.indexOf(currentRound === 'third-place' ? 'final' : currentRound))
 
+  // Competition switcher — mở modal chọn giải
+  const openCompetitionSwitcher = useCompetitionStore((s) => s.openModal)
+
   // Favorites filter — số đội đã chọn + mở modal
   const { teamIds: favoriteIds, openModal: openFavorites } = useFavoritesStore()
   const favCount = favoriteIds.length
@@ -96,12 +101,20 @@ export function Header() {
           <FifaWordmark>FIFA</FifaWordmark>
         </LogoMark>
         <HeaderDivider />
-        <TitleBlock>
-          <TournamentYear>{competition.year}</TournamentYear>
-          <TournamentSubtitle>
-            {competition.title.replace(/^FIFA\s+/, '')}
-          </TournamentSubtitle>
-        </TitleBlock>
+        <TitleButton
+          onClick={openCompetitionSwitcher}
+          whileTap={{ scale: 0.96 }}
+          title="Đổi giải đấu"
+          aria-label="Chọn giải đấu khác"
+        >
+          <TitleBlock>
+            <TournamentYear>{competition.year}</TournamentYear>
+            <TournamentSubtitle>
+              {competition.title.replace(/^FIFA\s+/, '')}
+            </TournamentSubtitle>
+          </TitleBlock>
+          <TitleChevron aria-hidden="true">▾</TitleChevron>
+        </TitleButton>
       </LogoSection>
 
       {/* ── Center: phase indicator + match counts ── */}

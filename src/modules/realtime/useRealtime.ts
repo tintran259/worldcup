@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from 'react'
 import { useRealtimeStore, useEventFeedStore } from '@/stores'
-import { createMockWebSocket }   from './mockWebSocket'
-import { getSimulationEngine }   from './simulationEngine'
-import { eventBus, BUS_EVENTS }  from './eventBus'
-import { LIVE_MATCHES }          from '@/lib/mock'
-import { SIMULATION_TICK_MS }    from '@/types/events.types'
+import { createRealtimeClient } from './factory'
+import { getSimulationEngine }  from './simulationEngine'
+import { eventBus, BUS_EVENTS } from './eventBus'
+import { LIVE_MATCHES }         from '@/lib/mock'
+import { SIMULATION_TICK_MS }   from '@/types/events.types'
 import type { WSMatchEvent, FeedEvent, SimulationSpeed } from '@/types/events.types'
 import type { ExtendedMatch }    from '@/lib/mock/types'
-import type { MockWebSocket }    from './mockWebSocket'
+import type { RealtimeClient }   from './types'
 import type { SimulationEngine } from './simulationEngine'
 
 export interface UseRealtimeOptions {
@@ -49,15 +49,15 @@ export function useRealtime({ speed = 'normal', autoStart = true }: UseRealtimeO
   const { applyEvent, setConnectionStatus } = useRealtimeStore()
   const { pushEvent }  = useEventFeedStore()
   const engineRef = useRef<SimulationEngine | null>(null)
-  const wsRef     = useRef<MockWebSocket    | null>(null)
+  const wsRef     = useRef<RealtimeClient   | null>(null)
 
   useEffect(() => {
     if (!autoStart) return
 
-    const ws = createMockWebSocket({
-      url:              'wss://mock.worldcup2026.app/realtime',
-      heartbeatMs:      25_000,
-      onStatusChange:   setConnectionStatus,
+    // Factory picks adapter từ env: mock (default) / SSE / Socket.IO
+    const ws = createRealtimeClient({
+      heartbeatMs:    25_000,
+      onStatusChange: setConnectionStatus,
     })
     wsRef.current = ws
 
@@ -70,10 +70,15 @@ export function useRealtime({ speed = 'normal', autoStart = true }: UseRealtimeO
 
     const unsubOpen = eventBus.on(BUS_EVENTS.WS_CONNECTED, () => {
       setConnectionStatus('connected')
-      const engine = getSimulationEngine()
-      engineRef.current = engine
-      engine.setWebSocket(ws)
-      engine.start(LIVE_MATCHES as ExtendedMatch[], SIMULATION_TICK_MS[speed])
+
+      // Simulation engine CHỈ chạy với mock client (có _dispatch).
+      // Real client (SSE/WS) nhận event từ server → không cần engine.
+      if (typeof ws._dispatch === 'function') {
+        const engine = getSimulationEngine()
+        engineRef.current = engine
+        engine.setWebSocket(ws as Parameters<SimulationEngine['setWebSocket']>[0])
+        engine.start(LIVE_MATCHES as ExtendedMatch[], SIMULATION_TICK_MS[speed])
+      }
     })
 
     const unsubClose = eventBus.on(BUS_EVENTS.WS_CLOSED, () => setConnectionStatus('disconnected'))

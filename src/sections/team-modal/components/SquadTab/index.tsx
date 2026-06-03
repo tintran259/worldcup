@@ -1,45 +1,37 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { ExtendedTeam, StarPlayer } from '@/lib/mock/types'
 import {
   Root, PositionGroup, GroupHeader, GroupLabel, GroupCount,
-  PlayerGrid, CardRoot, CardMain, Avatar, CaptainBadge,
-  PlayerInfo, PlayerName, PlayerMeta, JerseyNum, StatusBadge,
-  StatsRow, StatChip, StatVal, StatKey, RatingDot, EmptyState,
+  PlayerList, Row, PosBadge, JerseyCol, AvatarCol, AvatarImg, AvatarFallback,
+  NameCol, PlayerName, PlayerMeta,
+  StatsCol, StatItem, StatVal, StatKey, RatingPill, CaptainTag,
+  EmptyState,
 } from './styles'
 
-// ── Player status ─────────────────────────────────────────────────────────────
-
-type PlayerStatus = 'available' | 'yellow-risk' | 'suspended' | 'injured' | 'out'
-
-function getStatus(p: StarPlayer): PlayerStatus {
-  if (p.tournamentRedCards > 0)     return 'suspended'
-  if (p.tournamentYellowCards >= 2) return 'yellow-risk'
-  const seed = parseInt(p.id.replace('p', '')) || 0
-  if (seed % 11 === 0)              return 'injured'
-  return 'available'
+function initials(name: string): string {
+  return name.split(' ').map((w) => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
 }
 
-const STATUS: Record<PlayerStatus, { icon: string; label: string; bg: string; color: string }> = {
-  'available':   { icon: '🟢', label: 'Available',   bg: 'rgba(16,185,129,0.10)', color: '#065f46' },
-  'yellow-risk': { icon: '🟡', label: 'Yellow Risk', bg: 'rgba(245,158,11,0.10)', color: '#92400e' },
-  'suspended':   { icon: '🔴', label: 'Suspended',   bg: 'rgba(239,68,68,0.10)',  color: '#991b1b' },
-  'injured':     { icon: '⚠️', label: 'Injured',     bg: 'rgba(249,115,22,0.10)', color: '#9a3412' },
-  'out':         { icon: '❌', label: 'Out',          bg: 'rgba(107,114,128,0.10)', color: '#374151' },
-}
+// ── Position config — FIFA Online color scheme ───────────────────────────────
 
 const POSITION_ORDER: StarPlayer['position'][] = ['GK', 'DEF', 'MID', 'FWD']
+
 const POSITION_LABELS: Record<StarPlayer['position'], string> = {
   GK: 'Goalkeepers', DEF: 'Defenders', MID: 'Midfielders', FWD: 'Forwards',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function initials(name: string): string {
-  return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+// FIFA Online / FUT style position colors
+const POSITION_COLORS: Record<StarPlayer['position'], { bg: string; text: string }> = {
+  GK:  { bg: '#fbbf24', text: '#7c2d12' }, // amber — goalkeeper
+  DEF: { bg: '#10b981', text: '#064e3b' }, // green — defender
+  MID: { bg: '#3b82f6', text: '#1e3a8a' }, // blue  — midfielder
+  FWD: { bg: '#ef4444', text: '#7f1d1d' }, // red   — forward
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function ratingColor(r: number): string {
   if (r >= 9.0) return '#10b981'
@@ -48,68 +40,81 @@ function ratingColor(r: number): string {
   return '#ef4444'
 }
 
-// ── PlayerCard sub-component ──────────────────────────────────────────────────
+// ── PlayerRow ────────────────────────────────────────────────────────────────
 
-function PlayerCard({
-  player, teamColor, onOpen,
-}: { player: StarPlayer; teamColor: string; onOpen: (id: string) => void }) {
-  const [hovered, setHovered] = useState(false)
-  const status = getStatus(player)
+const rowHoverTransition = { type: 'spring' as const, stiffness: 420, damping: 28, mass: 0.6 }
+
+function PlayerRow({
+  player, teamColor, onOpen, index,
+}: { player: StarPlayer; teamColor: string; onOpen: (id: string) => void; index: number }) {
+  const pos = POSITION_COLORS[player.position]
+  const [imgFailed, setImgFailed] = useState(false)
+  const showImage = player.photoUrl && !imgFailed
 
   return (
-    <CardRoot
-      layout
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileHover={{ y: -2, scale: 1.01 }}
-      transition={{ duration: 0.15 }}
+    <Row
       onClick={() => onOpen(player.id)}
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.22, delay: index * 0.025, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ x: 2, transition: rowHoverTransition }}
+      whileTap={{ scale: 0.995 }}
     >
-      <CardMain>
-        <Avatar $color={teamColor}>
-          {initials(player.name)}
-          {player.isCaptain && <CaptainBadge>C</CaptainBadge>}
-        </Avatar>
+      <PosBadge style={{ background: pos.bg, color: pos.text }}>
+        {player.position}
+      </PosBadge>
 
-        <PlayerInfo>
-          <PlayerName>{player.name}</PlayerName>
-          <PlayerMeta>{player.age}y · {player.club}</PlayerMeta>
-        </PlayerInfo>
+      <JerseyCol>{player.shirtNumber}</JerseyCol>
 
-        <StatusBadge
-          $s={status}
-          style={{ background: STATUS[status].bg, color: STATUS[status].color }}
-        >
-          {STATUS[status].icon} {STATUS[status].label}
-        </StatusBadge>
-
-        <JerseyNum>#{player.shirtNumber}</JerseyNum>
-      </CardMain>
-
-      <AnimatePresence>
-        {hovered && (
-          <StatsRow
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.18 }}
-          >
-            <StatChip><StatVal>{player.matchesPlayed}</StatVal><StatKey>MP</StatKey></StatChip>
-            <StatChip><StatVal $color="#10b981">{player.tournamentGoals}</StatVal><StatKey>Goals</StatKey></StatChip>
-            <StatChip><StatVal $color="#3b82f6">{player.tournamentAssists}</StatVal><StatKey>Assists</StatKey></StatChip>
-            <StatChip><StatVal $color="#f59e0b">{player.tournamentYellowCards}</StatVal><StatKey>YC</StatKey></StatChip>
-            <StatChip><StatVal $color="#ef4444">{player.tournamentRedCards}</StatVal><StatKey>RC</StatKey></StatChip>
-            <StatChip>
-              <StatVal>
-                <RatingDot $color={ratingColor(player.rating)} />
-                {player.rating.toFixed(1)}
-              </StatVal>
-              <StatKey>Rating</StatKey>
-            </StatChip>
-          </StatsRow>
+      <AvatarCol>
+        {showImage ? (
+          <AvatarImg
+            src={player.photoUrl}
+            alt={player.name}
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <AvatarFallback $color={teamColor}>{initials(player.name)}</AvatarFallback>
         )}
-      </AnimatePresence>
-    </CardRoot>
+      </AvatarCol>
+
+      <NameCol>
+        <PlayerName>
+          {player.name}
+          {player.isCaptain && <CaptainTag>C</CaptainTag>}
+        </PlayerName>
+        <PlayerMeta>{player.age}y · {player.club}</PlayerMeta>
+      </NameCol>
+
+      <StatsCol>
+        <StatItem>
+          <StatVal $color="#10b981">{player.tournamentGoals}</StatVal>
+          <StatKey>G</StatKey>
+        </StatItem>
+        <StatItem>
+          <StatVal $color="#3b82f6">{player.tournamentAssists}</StatVal>
+          <StatKey>A</StatKey>
+        </StatItem>
+        <StatItem>
+          <StatVal $color="#64748b">{player.matchesPlayed}</StatVal>
+          <StatKey>MP</StatKey>
+        </StatItem>
+        {/* YC/RC ẩn trên maxSm — tap row mở drawer xem full stats */}
+        <StatItem className="stat-extra">
+          <StatVal $color="#f59e0b">{player.tournamentYellowCards}</StatVal>
+          <StatKey>YC</StatKey>
+        </StatItem>
+        <StatItem className="stat-extra">
+          <StatVal $color="#ef4444">{player.tournamentRedCards}</StatVal>
+          <StatKey>RC</StatKey>
+        </StatItem>
+      </StatsCol>
+
+      <RatingPill $color={ratingColor(player.rating)}>
+        {player.rating.toFixed(1)}
+      </RatingPill>
+    </Row>
   )
 }
 
@@ -123,7 +128,6 @@ export interface SquadTabProps {
 
 export function SquadTab({ team, players, onPlayerClick }: SquadTabProps) {
   const teamColor = team?.homeColor ?? '#2563eb'
-
   if (!players.length) {
     return (
       <EmptyState>
@@ -142,27 +146,34 @@ export function SquadTab({ team, players, onPlayerClick }: SquadTabProps) {
     {},
   )
 
+  let runningIdx = 0
+
   return (
     <Root>
       {(Object.entries(grouped) as [StarPlayer['position'], StarPlayer[]][]).map(([pos, list]) => (
         <PositionGroup key={pos}>
           <GroupHeader>
-            <GroupLabel>{POSITION_LABELS[pos]}</GroupLabel>
+            <GroupLabel>
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: POSITION_COLORS[pos].bg,
+                  marginRight: 8,
+                }}
+              />
+              {POSITION_LABELS[pos]}
+            </GroupLabel>
             <GroupCount>{list.length}</GroupCount>
           </GroupHeader>
 
-          <PlayerGrid>
-            {list.map((player, i) => (
-              <motion.div
-                key={player.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, delay: i * 0.04 }}
-              >
-                <PlayerCard player={player} teamColor={teamColor} onOpen={onPlayerClick} />
+          <PlayerList>
+            {list.map((player) => (
+              <motion.div key={player.id}>
+                <PlayerRow player={player} teamColor={teamColor} onOpen={onPlayerClick} index={runningIdx++} />
               </motion.div>
             ))}
-          </PlayerGrid>
+          </PlayerList>
         </PositionGroup>
       ))}
     </Root>

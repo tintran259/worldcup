@@ -22,6 +22,8 @@ export const LeaderGrid = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   ${(p) => p.theme.mq.md} { grid-template-columns: repeat(4, 1fr); }
+  /* Mobile (≤479px): list 1 col compact — icon trái, name+stat phải */
+  ${(p) => p.theme.mq.maxSm} { grid-template-columns: 1fr; gap: 8px; }
 `
 
 export const LeaderCard = styled(motion.div)<{ $accent: string }>`
@@ -43,12 +45,29 @@ export const LeaderCard = styled(motion.div)<{ $accent: string }>`
     height: 3px;
     background: ${(p) => p.$accent};
   }
+
+  /* Mobile compact: horizontal layout — icon/avatar trái, name+title giữa, stat phải */
+  ${(p) => p.theme.mq.maxSm} {
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    &::before { height: 0; left: 0; width: 3px; height: auto; bottom: 0; right: auto; }
+  }
 `
 
 export const LeaderIcon = styled.div`
   font-size: 22px;
   margin-bottom: 8px;
   line-height: 1;
+  ${(p) => p.theme.mq.maxSm} {
+    font-size: 24px;
+    margin-bottom: 0;
+    grid-row: 1 / span 2;
+    grid-column: 1;
+  }
 `
 
 export const LeaderTitle = styled.p`
@@ -58,6 +77,11 @@ export const LeaderTitle = styled.p`
   text-transform: uppercase;
   color: ${(p) => p.theme.colors.text.muted};
   margin-bottom: 8px;
+  ${(p) => p.theme.mq.maxSm} {
+    margin-bottom: 2px;
+    grid-row: 1;
+    grid-column: 2;
+  }
 `
 
 export const LeaderAvatar = styled.div<{ $color: string }>`
@@ -70,6 +94,8 @@ export const LeaderAvatar = styled.div<{ $color: string }>`
   font-weight: ${(p) => p.theme.fontWeights.black};
   color: #fff;
   margin-bottom: 8px;
+  /* Ẩn avatar trên mobile để giành chỗ cho compact layout */
+  ${(p) => p.theme.mq.maxSm} { display: none; }
 `
 
 export const LeaderName = styled.p`
@@ -81,6 +107,7 @@ export const LeaderName = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
+  ${(p) => p.theme.mq.maxSm} { grid-row: 2; grid-column: 2; }
 `
 
 export const LeaderStat = styled.p`
@@ -90,6 +117,13 @@ export const LeaderStat = styled.p`
   color: ${(p) => p.theme.colors.text.primary};
   line-height: 1;
   margin-top: 6px;
+  ${(p) => p.theme.mq.maxSm} {
+    font-size: ${(p) => p.theme.fontSizes['2xl']};
+    margin-top: 0;
+    grid-row: 1 / span 2;
+    grid-column: 3;
+    text-align: right;
+  }
 `
 
 export const LeaderStatLabel = styled.span`
@@ -98,6 +132,7 @@ export const LeaderStatLabel = styled.span`
   color: ${(p) => p.theme.colors.text.muted};
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  ${(p) => p.theme.mq.maxSm} { display: none; }
 `
 
 export const TableCard = styled(motion.div)`
@@ -107,13 +142,34 @@ export const TableCard = styled(motion.div)`
   overflow: hidden;
 `
 
+/**
+ * 7-column stats table.
+ *   Desktop ≥ md: Name | MP | G | A | YC | RC | Rating
+ *   Mobile  < md: Name | G | A | Rating   (hide MP/YC/RC — tap row → drawer shows all)
+ *
+ * Cell positions:
+ *   nth-child(1) Name, (2) MP, (3) G, (4) A, (5) YC, (6) RC, (7) Rating
+ */
+const TABLE_GRID_DESKTOP = 'grid-template-columns: 1fr 36px 36px 36px 36px 36px 52px;'
+const TABLE_GRID_MOBILE  = 'grid-template-columns: 1fr 32px 32px 46px;'
+
 export const TableHead = styled.div`
   display: grid;
-  grid-template-columns: 1fr 36px 36px 36px 36px 36px 52px;
+  ${TABLE_GRID_DESKTOP}
   gap: 4px;
   padding: 8px 14px;
   background: ${(p) => p.theme.colors.bg.elevated};
   border-bottom: 1px solid ${(p) => p.theme.colors.border.subtle};
+
+  ${(p) => p.theme.mq.maxMd} {
+    ${TABLE_GRID_MOBILE}
+    padding: 8px 12px;
+    gap: 6px;
+    /* Ẩn MP (col 2), YC (5), RC (6) */
+    > *:nth-child(2),
+    > *:nth-child(5),
+    > *:nth-child(6) { display: none; }
+  }
 `
 
 export const TH = styled.span`
@@ -129,7 +185,7 @@ export const TH = styled.span`
 
 export const TableRow = styled(motion.div)<{ $alt: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 36px 36px 36px 36px 36px 52px;
+  ${TABLE_GRID_DESKTOP}
   gap: 4px;
   padding: 9px 14px;
   background: ${(p) => p.$alt ? p.theme.colors.bg.elevated : 'transparent'};
@@ -137,6 +193,15 @@ export const TableRow = styled(motion.div)<{ $alt: boolean }>`
   align-items: center;
   &:last-child { border-bottom: none; }
   &:hover { background: rgba(37,99,235,0.03); cursor: pointer; }
+
+  ${(p) => p.theme.mq.maxMd} {
+    ${TABLE_GRID_MOBILE}
+    padding: 10px 12px;
+    gap: 6px;
+    > *:nth-child(2),
+    > *:nth-child(5),
+    > *:nth-child(6) { display: none; }
+  }
 `
 
 export const TD = styled.span`
@@ -152,6 +217,7 @@ export const PlayerNameCell = styled.div`
   align-items: center;
   gap: 8px;
   min-width: 0;
+  ${(p) => p.theme.mq.maxSm} { gap: 6px; }
 `
 
 export const SmallAvatar = styled.div<{ $color: string }>`
@@ -164,6 +230,7 @@ export const SmallAvatar = styled.div<{ $color: string }>`
   font-weight: ${(p) => p.theme.fontWeights.black};
   color: #fff;
   flex-shrink: 0;
+  ${(p) => p.theme.mq.maxSm} { width: 22px; height: 22px; font-size: 7px; }
 `
 
 export const PlayerFullName = styled.span`
@@ -202,6 +269,7 @@ export const BarLabel = styled.span`
   color: ${(p) => p.theme.colors.text.muted};
   letter-spacing: 0.04em;
   min-width: 80px;
+  ${(p) => p.theme.mq.maxSm} { min-width: 64px; font-size: 9px; }
 `
 
 export const BarTrack = styled.div`
@@ -232,4 +300,5 @@ export const SummaryCard = styled(motion.div)`
   border: 1px solid ${(p) => p.theme.colors.border.subtle};
   border-radius: 14px;
   padding: 16px 18px;
+  ${(p) => p.theme.mq.maxSm} { padding: 12px 14px; border-radius: 12px; }
 `

@@ -1,10 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Flag }              from '@/components/Flag'
-import { usePanelStore }     from '@/stores'
-import { useMatchHistory }   from './hooks/useMatchHistory'
-import { formatMatchDate }   from '@/utils/date'
+import { Flag } from '@/components/Flag'
+import { usePanelStore } from '@/stores'
+import { useMatchHistory } from './hooks/useMatchHistory'
+import { formatMatchDate } from '@/utils/date'
 import {
   SectionTitle,
   MatchRow,

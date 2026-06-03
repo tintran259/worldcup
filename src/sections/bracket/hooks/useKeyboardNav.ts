@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, RefObject } from 'react'
-import { ZOOM_STEP } from './useZoomPan'
 
 const PAN_STEP = 80
 

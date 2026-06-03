@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useCallback, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useCallback } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { Flag } from '@/components/Flag'
 import { useBracketStore, usePanelStore, useRealtimeStore } from '@/stores'
 import type { Match } from '@/types/domain.types'
@@ -112,8 +112,6 @@ export function MatchCard({
   onClick,
   className,
 }: MatchCardProps) {
-  const prevScore = useRef<{ home?: number; away?: number }>({})
-
   const { selectedMatchId, selectMatch } = useBracketStore()
   const { openMatch } = usePanelStore()
   const scoreUpdates = useRealtimeStore((s) => s.scoreUpdates)
@@ -129,11 +127,6 @@ export function MatchCard({
 
   const hasPens = match.score?.homePenalties !== undefined
   const schedule = parseSchedule(match.scheduledAt)
-
-  // Track prev score to animate flash on change
-  const homeChanged = homeScore !== undefined && homeScore !== prevScore.current.home
-  const awayChanged = awayScore !== undefined && awayScore !== prevScore.current.away
-  prevScore.current = { home: homeScore, away: awayScore }
 
   const handleClick = useCallback(() => {
     selectMatch(match.id)

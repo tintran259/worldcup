@@ -186,30 +186,66 @@ export const apiFootballAdapter: ProviderAdapter = {
   },
 
   toPlayer(raw: unknown): StarPlayer {
+    const r = raw as Record<string, unknown>
+
+    // ── Squad shape ─────────────────────────────────────────────────────────
+    // /players/squads trả về: { id, name, age, number, position, photo }
+    // KHÔNG có statistics (đó là endpoint /players khác).
+    if (r.player === undefined && typeof r.id === 'number') {
+      const sp = raw as { id: number; name: string; age: number; number: number | null; position: string; photo?: string }
+      return {
+        id:                    `af:p:${sp.id}`,
+        name:                  sp.name,
+        teamId:                '',
+        position:              POSITION_MAP[sp.position] ?? 'MID',
+        shirtNumber:           sp.number ?? 0,
+        age:                   sp.age ?? 0,
+        club:                  '',
+        clubLeague:            '',
+        isCaptain:             false,
+        tournamentGoals:       0,
+        tournamentAssists:     0,
+        tournamentYellowCards: 0,
+        tournamentRedCards:    0,
+        matchesPlayed:         0,
+        minutesPlayed:         0,
+        rating:                0,
+        marketValue:           '',
+        goals:                 0,
+        assists:               0,
+        yellowCards:           0,
+        redCards:              0,
+        photoUrl:              sp.photo,
+      }
+    }
+
+    // ── Topscorer shape ─────────────────────────────────────────────────────
+    // /players hoặc /players/topscorers: { player, statistics }
     const p = raw as AfPlayer
-    const st = p.statistics[0]
+    const st = p.statistics?.[0]
     return {
-      id: `af:p:${p.player.id}`,
-      name: p.player.name,
-      teamId: '',
-      position: POSITION_MAP[st?.games.position ?? ''] ?? 'MID',
-      shirtNumber: st?.games.number ?? 0,
-      age: p.player.age,
-      club: '',
-      clubLeague: '',
-      isCaptain: false,
-      tournamentGoals: st?.goals.total ?? 0,
-      tournamentAssists: st?.goals.assists ?? 0,
-      tournamentYellowCards: st?.cards.yellow ?? 0,
-      tournamentRedCards: st?.cards.red ?? 0,
-      matchesPlayed: st?.games.appearences ?? 0,
-      minutesPlayed: st?.games.minutes ?? 0,
-      rating: parseFloat(st?.games.rating ?? '0') || 0,
-      marketValue: '',
-      goals: st?.goals.total ?? 0,
-      assists: st?.goals.assists ?? 0,
-      yellowCards: st?.cards.yellow ?? 0,
-      redCards: st?.cards.red ?? 0,
+      id:                    `af:p:${p.player.id}`,
+      name:                  p.player.name,
+      teamId:                '',
+      position:              POSITION_MAP[st?.games?.position ?? ''] ?? 'MID',
+      shirtNumber:           st?.games?.number ?? 0,
+      age:                   p.player.age,
+      club:                  '',
+      clubLeague:            '',
+      isCaptain:             st?.games?.captain ?? false,
+      tournamentGoals:       st?.goals?.total ?? 0,
+      tournamentAssists:     st?.goals?.assists ?? 0,
+      tournamentYellowCards: st?.cards?.yellow ?? 0,
+      tournamentRedCards:    st?.cards?.red ?? 0,
+      matchesPlayed:         st?.games?.appearences ?? 0,
+      minutesPlayed:         st?.games?.minutes ?? 0,
+      rating:                parseFloat(st?.games?.rating ?? '0') || 0,
+      marketValue:           '',
+      goals:                 st?.goals?.total ?? 0,
+      assists:               st?.goals?.assists ?? 0,
+      yellowCards:           st?.cards?.yellow ?? 0,
+      redCards:              st?.cards?.red ?? 0,
+      photoUrl:              p.player.photo,
     }
   },
 

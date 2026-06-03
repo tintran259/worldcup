@@ -7,6 +7,17 @@
  * Tương lai: đổi MemoryCache → RedisCache mà không cần sửa gì bên ngoài.
  */
 
+export {
+  CACHE_PROFILES,
+  buildCacheControl,
+  cacheHeaders,
+  matchProfile,
+  type CacheProfile,
+  type CacheProfileKey,
+} from './profiles'
+
+export { createRedisCache, type UpstashConfig } from './redisCache'
+
 // ── Interface ─────────────────────────────────────────────────────────────────
 
 export interface Cache {
@@ -15,6 +26,20 @@ export interface Cache {
   del(key: string): Promise<void>
   flush(pattern?: string): Promise<void>
   has(key: string): Promise<boolean>
+
+  /**
+   * Get-or-compute với inflight deduplication.
+   *
+   * Khi N concurrent requests cùng key đều miss cache:
+   *   - Request đầu tiên gọi `compute()`, register promise vào inflight map
+   *   - Request 2..N nhận lại CÙNG promise đó (không gọi compute thêm)
+   *   - Khi promise resolve → set cache → tất cả N requests cùng nhận data
+   *   - Khi promise reject → KHÔNG cache → tất cả N requests cùng throw
+   *
+   * → Thundering herd: 1000 user cùng request /api/standings khi cache miss
+   *   chỉ gọi external API 1 lần thay vì 1000 lần.
+   */
+  getOrCompute<T>(key: string, ttlSeconds: number, compute: () => Promise<T>): Promise<T>
 }
 
 // ── TTL presets (seconds) ─────────────────────────────────────────────────────
@@ -50,7 +75,10 @@ interface Entry {
 }
 
 export function createCache(maxEntries = 512): Cache {
-  const store = new Map<string, Entry>()
+  const store    = new Map<string, Entry>()
+  // Inflight map: key → Promise đang chạy. Tránh thundering herd khi N concurrent
+  // requests cùng key đều miss cache.
+  const inflight = new Map<string, Promise<unknown>>()
   let lruClock = 0
 
   function isExpired(e: Entry) {
@@ -66,7 +94,7 @@ export function createCache(maxEntries = 512): Cache {
     }
   }
 
-  return {
+  const cache: Cache = {
     async get<T>(key: string) {
       const entry = store.get(key)
       if (!entry) return null
@@ -84,14 +112,15 @@ export function createCache(maxEntries = 512): Cache {
       })
     },
 
-    async del(key) { store.delete(key) },
+    async del(key) { store.delete(key); inflight.delete(key) },
 
     async flush(pattern) {
-      if (!pattern) { store.clear(); return }
+      if (!pattern) { store.clear(); inflight.clear(); return }
       const re = new RegExp(
         '^' + pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$',
       )
-      for (const key of store.keys()) if (re.test(key)) store.delete(key)
+      for (const key of store.keys())    if (re.test(key)) store.delete(key)
+      for (const key of inflight.keys()) if (re.test(key)) inflight.delete(key)
     },
 
     async has(key) {
@@ -100,5 +129,33 @@ export function createCache(maxEntries = 512): Cache {
       if (isExpired(entry)) { store.delete(key); return false }
       return true
     },
+
+    async getOrCompute<T>(key: string, ttlSeconds: number, compute: () => Promise<T>): Promise<T> {
+      // 1. Cache hit → trả ngay
+      const cached = await cache.get<T>(key)
+      if (cached !== null) return cached
+
+      // 2. Đang có request inflight cho key này → join vào cùng promise
+      const existing = inflight.get(key)
+      if (existing) return existing as Promise<T>
+
+      // 3. Là người đầu tiên miss → compute + register promise
+      const promise = (async () => {
+        try {
+          const value = await compute()
+          await cache.set(key, value, ttlSeconds)
+          return value
+        } finally {
+          // Cleanup inflight slot dù success hay fail.
+          // Lưu ý: nếu fail, KHÔNG cache → request tiếp theo sẽ thử lại.
+          inflight.delete(key)
+        }
+      })()
+
+      inflight.set(key, promise)
+      return promise
+    },
   }
+
+  return cache
 }

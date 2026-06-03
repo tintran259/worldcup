@@ -1,13 +1,12 @@
 'use client'
 
 import { AnimatePresence } from 'framer-motion'
-import { MatchCard }       from '@/components/MatchCard'
-import { useLiveMatches }  from './hooks/useLiveMatches'
-import { useFavorites }    from '@/hooks/useFavorites'
+import { MatchCard } from '@/components/MatchCard'
+import { useLiveMatches } from './hooks/useLiveMatches'
+import { useFavorites } from '@/hooks/useFavorites'
 import {
   liveSection,
   upcomingSection,
-  completedSection,
   pulseDotAnimate,
   pulseDotTransition,
 } from './animations/feed'
@@ -22,10 +21,10 @@ import {
 } from './styles'
 
 export function LiveMatchesTab() {
-  const { liveMatches, upcomingMatches, completedMatches } = useLiveMatches()
+  const { liveMatches, upcomingMatches } = useLiveMatches()
   const { hasActiveFilter } = useFavorites()
 
-  const hasAny = liveMatches.length > 0 || upcomingMatches.length > 0 || completedMatches.length > 0
+  const hasAny = liveMatches.length > 0 || upcomingMatches.length > 0
 
   return (
     <div>
@@ -65,24 +64,6 @@ export function LiveMatchesTab() {
           ))}
         </Section>
       )}
-
-      {completedMatches.length > 0 && (
-        <Section
-          variants={completedSection}
-          initial="hidden"
-          animate="visible"
-        >
-          <SectionLabel>Đã kết thúc</SectionLabel>
-          {completedMatches.map((match, i) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              index={liveMatches.length + upcomingMatches.length + i}
-            />
-          ))}
-        </Section>
-      )}
-
       {!hasAny && (
         <EmptyState>
           <EmptyTitle>Không có trận đấu</EmptyTitle>

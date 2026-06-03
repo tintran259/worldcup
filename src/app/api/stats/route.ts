@@ -5,8 +5,11 @@
  * Tổng hợp từ matches + top scorers endpoint.
  */
 
+import { NextRequest } from 'next/server'
 import { getStatsRepository, getMatchRepository } from '@/lib/server'
+import { withCompetition } from '@/lib/config/competitionContext'
 import { handleProviderError } from '../_helpers'
+import { cacheHeaders } from '@/lib/cache'
 import type { TopScorer } from '@/lib/mock/types'
 import type { TeamGoals, StatsSummary } from '@/lib/repositories/stats'
 
@@ -18,7 +21,10 @@ export interface StatsResponse {
   teamGoals: TeamGoals[]
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const competitionKey = request.nextUrl.searchParams.get('competition')
+
+  return withCompetition(competitionKey, async () => {
   try {
     const statsRepo = getStatsRepository()
     const matchRepo = getMatchRepository()
@@ -36,9 +42,7 @@ export async function GET() {
       teamGoals: statsRepo.computeTeamGoals(allMatches, 32),
     }
 
-    return Response.json(data, {
-      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
-    })
+    return Response.json(data, { headers: cacheHeaders('STATS') })
   } catch (error) {
     // Empty fallback — frontend sẽ hide section nếu rỗng
     return handleProviderError({
@@ -51,4 +55,5 @@ export async function GET() {
       },
     })
   }
+  })
 }

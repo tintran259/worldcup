@@ -86,6 +86,8 @@ export interface Player {
   assists: number
   yellowCards: number
   redCards: number
+  /** URL ảnh chân dung từ API hoặc avatar generator. Undefined → UI fallback initials. */
+  photoUrl?: string
 }
 
 export interface MatchScore {

@@ -1,9 +1,12 @@
 'use client'
 
 import { useRealtime }            from '@/modules/realtime/useRealtime'
+import { useRealtimeQueryBridge } from '@/modules/realtime/queryBridge'
 import { LiveEventToast }          from '@/components/LiveEventToast'
+import { QuotaBanner }             from '@/components/QuotaBanner'
 import { TeamModal }               from '@/sections/team-modal'
 import { FavoritesFilterModal }    from '@/sections/favorites-filter'
+import { CompetitionSwitcher }     from '@/sections/competition-switcher'
 import { liveBlobAnimate, liveBlobTransition } from './animations/blobs'
 import {
   Shell,
@@ -19,9 +22,10 @@ export interface AppShellProps {
   hasLiveMatches?: boolean
 }
 
-/** Boots MockWebSocket + SimulationEngine — renders nothing itself. */
+/** Boots realtime client (mock / SSE / WS) + bridges events to React Query. */
 function RealtimeProvider() {
   useRealtime({ speed: 'normal', autoStart: true })
+  useRealtimeQueryBridge()
   return null
 }
 
@@ -46,6 +50,8 @@ export function AppShell({ children, hasLiveMatches = false }: AppShellProps) {
       <LiveEventToast />
       <TeamModal />
       <FavoritesFilterModal />
+      <CompetitionSwitcher />
+      <QuotaBanner />
     </Shell>
   )
 }

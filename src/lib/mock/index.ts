@@ -49,7 +49,17 @@ export {
   JPN_PLAYERS,
   SEN_PLAYERS,
   URU_PLAYERS,
+  MEX_PLAYERS,
+  BEL_PLAYERS,
+  CRO_PLAYERS,
+  COL_PLAYERS,
+  KOR_PLAYERS,
+  DEN_PLAYERS,
+  POL_PLAYERS,
 } from './players'
+
+// ── Squad generator (fallback cho team chưa có squad viết tay) ────────────────
+export { generateSquad } from './squadGenerator'
 
 // ── Group standings ────────────────────────────────────────────────────────────
 export { GROUP_STANDINGS, GROUP_MAP, ALL_GROUP_ROWS } from './standings'

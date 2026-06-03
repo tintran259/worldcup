@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect } from 'react'
-import { createPortal }  from 'react-dom'
+import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
-import { GroupTable }      from '../GroupTable'
-import { useStandings }    from '../../hooks/useStandings'
-import { useCompetition }  from '@/hooks/useCompetition'
+import { GroupTable } from '../GroupTable'
+import { useStandings } from '../../hooks/useStandings'
+import { useCompetition } from '@/hooks/useCompetition'
 import {
   backdropVariants,
   modalVariants,
@@ -40,8 +40,8 @@ export interface StandingsModalProps {
 }
 
 export function StandingsModal({ onClose }: StandingsModalProps) {
-  const { groups }   = useStandings()
-  const competition  = useCompetition()
+  const { groups } = useStandings()
+  const competition = useCompetition()
 
   // Close on Escape key
   useEffect(() => {
@@ -91,7 +91,7 @@ export function StandingsModal({ onClose }: StandingsModalProps) {
                   animate="visible"
                 >
                   <ModalGroupTitle>{group.name}</ModalGroupTitle>
-                  <GroupTable group={group} compact />
+                  <GroupTable group={group} compact onCloseStandingModal={onClose} />
                 </ModalGroupCard>
               ))}
             </ModalGrid>

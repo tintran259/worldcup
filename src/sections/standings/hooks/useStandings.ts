@@ -16,6 +16,7 @@ import { standingsService } from '../services/standings.service'
 import { queryKeys } from '@/queries/keys'
 import { GROUP_STANDINGS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useCompetition } from '@/hooks/useCompetition'
 import type { GroupStage } from '@/lib/mock/types'
 
 export interface UseStandingsReturn {
@@ -24,11 +25,15 @@ export interface UseStandingsReturn {
 }
 
 export function useStandings(): UseStandingsReturn {
+  const { key: compKey } = useCompetition()
+
+  // KHÔNG polling — standings chỉ fetch 1 lần khi đổi competition.
+  // User phải reload trang nếu muốn cập nhật.
   const { data, isLoading } = useQuery({
-    queryKey: queryKeys.standings.all,
+    queryKey: [...queryKeys.standings.all, compKey] as const,
     queryFn: () => standingsService.fetchAll(),
-    staleTime: 300_000,
-    refetchInterval: 300_000,
+    staleTime: Infinity,
+    refetchInterval: false,
   })
 
   const allGroups = (data as GroupStage[] | undefined) ?? GROUP_STANDINGS

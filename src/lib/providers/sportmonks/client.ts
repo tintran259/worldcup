@@ -64,6 +64,11 @@ export function createSportMonksClient(token: string): FootballProvider {
       return Array.isArray(res.data) ? res.data : []
     },
 
+    async getTeamPlayersWithStats(_teamExternalId: string, _params: LiveMatchParams) {
+      // SportMonks: TODO — chưa implement
+      return []
+    },
+
     async getTopScorers(_params: LiveMatchParams) {
       // SportMonks: TODO — chưa implement
       return []

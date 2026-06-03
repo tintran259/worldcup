@@ -62,7 +62,7 @@ export function StandingsTab() {
               <IconExpand />
             </ExpandBtn>
           </GroupHeader>
-          <GroupTable group={group} />
+          <GroupTable onCloseStandingModal={closeModal} group={group} />
         </GroupBlock>
       ))}
 

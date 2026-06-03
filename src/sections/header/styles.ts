@@ -92,11 +92,41 @@ export const HeaderDivider = styled.div`
   flex-shrink: 0;
 `
 
+// Wrapper button — biến TitleBlock thành clickable trigger để mở switcher
+export const TitleButton = styled(motion.button)`
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: ${(p) => p.theme.radii.button};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font: inherit;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+`
+
 export const TitleBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1px;
   line-height: 1;
+  text-align: left;
+`
+
+// Chevron icon nhỏ bên cạnh title báo hiệu clickable
+export const TitleChevron = styled.span`
+  display: inline-flex;
+  align-items: center;
+  color: ${(p) => p.theme.colors.text.muted};
+  font-size: 9px;
+  opacity: 0.7;
 `
 
 export const TournamentYear = styled.span`

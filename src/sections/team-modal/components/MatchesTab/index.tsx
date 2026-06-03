@@ -1,19 +1,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Flag } from '@/components/Flag'
 import type { Match } from '@/types/domain.types'
 import {
   Root, SectionTitle, MatchList, MatchCard, ResultBadge,
-  MatchMain, OpponentRow, OpponentFlag, OpponentName, HomeBadge,
+  MatchMain, OpponentRow, OpponentName, HomeBadge,
   MatchMeta, MetaText, MetaDot, ScoreBlock, ScoreText, LivePill,
   ScheduleBlock, ScheduleDate, ScheduleTime, RoundTag, EmptyState,
 } from './styles'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function flag(code: string): string {
-  return code.toUpperCase().split('').map(c => String.fromCodePoint(c.charCodeAt(0) + 127397)).join('')
-}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -49,7 +46,7 @@ function getScoreDisplay(match: Match, teamId: string): string {
 function getOpponent(match: Match, teamId: string) {
   const opp = match.homeTeam?.id === teamId ? match.awayTeam : match.homeTeam
   if (!opp) return null
-  return { name: opp.shortName, code: opp.code }
+  return { name: opp.shortName, code: opp.code, flagUrl: opp.flagUrl }
 }
 
 // ── Animation variants ────────────────────────────────────────────────────────
@@ -96,7 +93,7 @@ export function MatchesTab({ teamId, matches }: MatchesTabProps) {
                   <ResultBadge $r={null}>⬤</ResultBadge>
                   <MatchMain>
                     <OpponentRow>
-                      {opp && <OpponentFlag>{flag(opp.code)}</OpponentFlag>}
+                      {opp && <Flag countryCode={opp.code} countryName={opp.name} flagUrl={opp.flagUrl} size="sm" />}
                       <OpponentName>{opp?.name ?? 'TBD'}</OpponentName>
                       <HomeBadge>{isHome ? 'HOME' : 'AWAY'}</HomeBadge>
                     </OpponentRow>
@@ -132,7 +129,7 @@ export function MatchesTab({ teamId, matches }: MatchesTabProps) {
                   <ResultBadge $r={result}>{result ?? '—'}</ResultBadge>
                   <MatchMain>
                     <OpponentRow>
-                      {opp && <OpponentFlag>{flag(opp.code)}</OpponentFlag>}
+                      {opp && <Flag countryCode={opp.code} countryName={opp.name} flagUrl={opp.flagUrl} size="sm" />}
                       <OpponentName>{opp?.name ?? 'TBD'}</OpponentName>
                       <HomeBadge>{isHome ? 'HOME' : 'AWAY'}</HomeBadge>
                     </OpponentRow>
@@ -168,7 +165,7 @@ export function MatchesTab({ teamId, matches }: MatchesTabProps) {
                   <MatchMain>
                     <OpponentRow>
                       {opp
-                        ? <><OpponentFlag>{flag(opp.code)}</OpponentFlag><OpponentName>{opp.name}</OpponentName></>
+                        ? <><Flag countryCode={opp.code} countryName={opp.name} flagUrl={opp.flagUrl} size="sm" /><OpponentName>{opp.name}</OpponentName></>
                         : <OpponentName style={{ color: '#94a3b8' }}>Chưa xác định</OpponentName>
                       }
                       <HomeBadge>{isHome ? 'HOME' : 'AWAY'}</HomeBadge>

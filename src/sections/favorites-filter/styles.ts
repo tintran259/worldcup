@@ -8,7 +8,7 @@ export const Backdrop = styled(motion.div)`
   inset: 0;
   background: rgba(6, 11, 24, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 600;
+  z-index: 1100;
   display: flex;
   justify-content: center;
   align-items: flex-end;

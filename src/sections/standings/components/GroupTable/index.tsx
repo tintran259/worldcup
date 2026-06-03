@@ -13,9 +13,10 @@ export interface GroupTableProps {
   group: GroupStage
   /** When compact is true, W/D/L columns and form dots are hidden */
   compact?: boolean
+  onCloseStandingModal: () => void
 }
 
-export function GroupTable({ group, compact }: GroupTableProps) {
+export function GroupTable({ group, compact, onCloseStandingModal }: GroupTableProps) {
   const { openTeam } = useTeamModalStore()
 
   return (
@@ -33,7 +34,7 @@ export function GroupTable({ group, compact }: GroupTableProps) {
       <tbody>
         {group.teams.map((row) => (
           <TR key={row.team.id} $s={row.advanceStatus}
-            onClick={() => openTeam(row.team.id)}
+            onClick={() => { openTeam(row.team.id); onCloseStandingModal(); }}
             style={{ cursor: 'pointer' }}
           >
             <TD>

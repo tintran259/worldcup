@@ -3,54 +3,66 @@
 /**
  * useCompetition — hook đọc thông tin giải đấu đang active.
  *
- * Đọc từ NEXT_PUBLIC_COMPETITION trong .env.
- * Tự động cập nhật khi đổi `FOOTBALL_COMPETITION` + restart dev server.
+ * Ưu tiên:
+ *   1. competitionStore (user chọn qua CompetitionSwitcher)
+ *   2. NEXT_PUBLIC_COMPETITION từ env (default)
  *
- * Trả về:
- *   name      - "FIFA World Cup 2022"
- *   shortName - "World Cup 2022"
- *   year      - "2022" (parse từ name)
- *   title     - "World Cup" (tên giải, bỏ năm)
+ * Trả về thêm `status` để hooks khác quyết định có poll hay không:
+ *   - 'live'     → đang diễn ra, NÊN poll
+ *   - 'finished' → đã xong, KHÔNG cần poll (data tĩnh)
+ *   - 'upcoming' → chưa bắt đầu (đã disable trong switcher)
  */
 
-import { getClientConfig } from '@/lib/config'
+import { getClientConfig, COMPETITIONS } from '@/lib/config'
+import { useCompetitionStore } from '@/stores'
+import { getCompetitionStatus, type CompetitionStatus } from '@/utils/competition'
+import type { CompetitionKey, CompetitionConfig } from '@/lib/config'
 
 export interface CompetitionInfo {
+  /** Key (wc2026, ucl, premier-league...) */
+  key:           string
   /** Tên đầy đủ — "FIFA World Cup 2022" */
-  name: string
+  name:          string
   /** Tên ngắn — "World Cup 2022" */
-  shortName: string
+  shortName:     string
   /** Năm/season — "2022" */
-  year: string
-  /** Tên giải không kèm năm — "World Cup" */
-  title: string
+  year:          string
+  /** Tên giải không kèm năm — "FIFA World Cup" */
+  title:         string
   /** Có vòng bảng không */
   hasGroupStage: boolean
+  /** Trạng thái: live / upcoming / finished */
+  status:        CompetitionStatus
+  /** True nếu đang live — hooks dùng để quyết định polling */
+  isLive:        boolean
 }
 
-/**
- * Tách năm/season từ tên giải.
- * "FIFA World Cup 2022" → year: "2022", title: "FIFA World Cup"
- * "UEFA Champions League 2023-24" → year: "2023-24", title: "UEFA Champions League"
- */
 function parseTitle(name: string): { year: string; title: string } {
   const match = name.match(/(\d{4}(?:-\d{2,4})?)\s*$/)
   if (!match) return { year: '', title: name }
   return {
-    year: match[1],
+    year:  match[1],
     title: name.slice(0, match.index).trim(),
   }
 }
 
 export function useCompetition(): CompetitionInfo {
-  const cfg = getClientConfig()
-  const { year, title } = parseTitle(cfg.competition.name)
+  const selectedKey = useCompetitionStore((s) => s.selectedKey)
+
+  const selectedComp = selectedKey ? COMPETITIONS[selectedKey as CompetitionKey] : null
+  const comp: CompetitionConfig = selectedComp ?? COMPETITIONS[getClientConfig().competition.key as CompetitionKey]
+
+  const { year, title } = parseTitle(comp.name)
+  const status = getCompetitionStatus(comp)
 
   return {
-    name: cfg.competition.name,
-    shortName: cfg.competition.shortName,
+    key:           comp.key,
+    name:          comp.name,
+    shortName:     comp.shortName,
+    hasGroupStage: comp.hasGroupStage,
     year,
     title,
-    hasGroupStage: cfg.competition.hasGroupStage,
+    status,
+    isLive:        status === 'live',
   }
 }

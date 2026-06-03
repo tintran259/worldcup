@@ -15,32 +15,32 @@ export interface HttpClient {
 }
 
 export interface HttpClientConfig {
-  baseUrl:    string
+  baseUrl: string
   timeoutMs?: number
   /** Trả về auth headers — mỗi provider có cách auth khác nhau */
   getHeaders: () => Record<string, string>
   retry?: {
     maxAttempts?: number
     baseDelayMs?: number
-    maxDelayMs?:  number
+    maxDelayMs?: number
   }
   circuit?: {
     failureThreshold?: number
-    timeoutMs?:        number
+    timeoutMs?: number
   }
 }
 
 export function createHttpClient(name: ProviderName, config: HttpClientConfig): HttpClient {
-  const timeout    = config.timeoutMs   ?? 10_000
-  const maxTries   = config.retry?.maxAttempts ?? 3
-  const baseDelay  = config.retry?.baseDelayMs ?? 500
-  const maxDelay   = config.retry?.maxDelayMs  ?? 8_000
+  const timeout = config.timeoutMs ?? 10_000
+  const maxTries = config.retry?.maxAttempts ?? 3
+  const baseDelay = config.retry?.baseDelayMs ?? 500
+  const maxDelay = config.retry?.maxDelayMs ?? 8_000
   const cbThreshold = config.circuit?.failureThreshold ?? 5
-  const cbTimeout   = config.circuit?.timeoutMs        ?? 30_000
+  const cbTimeout = config.circuit?.timeoutMs ?? 30_000
 
   // Circuit breaker state (module-scoped per provider instance)
-  let failures   = 0
-  let openUntil  = 0
+  let failures = 0
+  let openUntil = 0
 
   function isOpen() {
     if (openUntil === 0) return false
@@ -67,7 +67,7 @@ export function createHttpClient(name: ProviderName, config: HttpClientConfig): 
   }
 
   async function fetchWithTimeout(url: string): Promise<Response> {
-    const ctrl  = new AbortController()
+    const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), timeout)
     try {
       return await fetch(url, {
@@ -113,7 +113,9 @@ export function createHttpClient(name: ProviderName, config: HttpClientConfig): 
         }
       }
 
-      throw new ProviderError(name, `Thất bại sau ${maxTries} lần thử`, undefined)
+      // Final throw — include last error message để debug dễ hơn
+      const lastMsg = lastErr instanceof Error ? lastErr.message : String(lastErr)
+      throw new ProviderError(name, `Failed after ${maxTries} retries: ${lastMsg}`, undefined)
     },
   }
 }

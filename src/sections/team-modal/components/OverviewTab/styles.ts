@@ -19,6 +19,7 @@ export const InfoCard = styled(motion.div)`
   border: 1px solid ${(p) => p.theme.colors.border.subtle};
   border-radius: 12px;
   padding: 14px 16px;
+  ${(p) => p.theme.mq.maxSm} { padding: 12px 14px; }
 `
 
 export const InfoLabel = styled.p`
@@ -64,6 +65,7 @@ export const StatCard = styled(motion.div)<{ $accent?: string }>`
   padding: 16px;
   position: relative;
   overflow: hidden;
+  ${(p) => p.theme.mq.maxSm} { padding: 12px 14px; }
 
   &::before {
     content: '';

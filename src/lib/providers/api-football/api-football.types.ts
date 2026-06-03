@@ -7,7 +7,13 @@
 export interface AfResponse<T> {
   get: string
   parameters: Record<string, string>
-  errors: unknown[]
+  /**
+   * API-Football trả `errors`:
+   *   - Mảng rỗng `[]` khi OK
+   *   - Object `{ requests: "...quota exceeded...", token: "invalid", ... }` khi có lỗi
+   * Code consumer phải xử lý cả 2 dạng.
+   */
+  errors: unknown[] | Record<string, string>
   results: number
   paging: { current: number; total: number }
   response: T[]

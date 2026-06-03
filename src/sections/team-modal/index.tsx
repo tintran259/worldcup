@@ -15,15 +15,15 @@ import { drawerVariants, drawerOverlayVariants } from './animations/drawer'
 import { countryCodeToFlagEmoji, getInitials } from '@/utils/match'
 import { getRatingColor } from '@/utils/format'
 import {
-  Backdrop, ModalContainer, ModalHeader,
-  TeamHeroRow, FlagCircle, TeamInfo, TeamNameText, TeamMetaRow,
+  Backdrop, ModalContainer, GrabHandle, ModalHeader,
+  TeamHeroRow, FlagCircle, FlagImg, TeamInfo, TeamNameText, TeamMetaRow,
   MetaChip, QualifiedBadge, CloseBtn,
   TabBar, TabBtn, TabText,
   BodyArea, ScrollPane,
   DrawerOverlay, DrawerPanel, DrawerHead, DrawerAvatar,
   DrawerPlayerInfo, DrawerName, DrawerSub, DrawerCloseBtn,
   DrawerBody, DrawerSection, DrawerSectionTitle,
-  DrawerStatGrid, DrawerStatCard, DrawerStatVal, DrawerStatLabel,
+  DrawerStatGrid, DrawerStatCard, DrawerStatIcon, DrawerStatVal, DrawerStatLabel,
   DrawerInfoRow, DrawerInfoKey, DrawerInfoVal,
   RatingBar, MarketValueTag,
 } from './styles'
@@ -47,8 +47,14 @@ function ModalInner() {
 
   // Fetch team + squad + matches từ API (1 lần cho tất cả 4 tabs)
   const { team, players, matches } = useTeamDetail(teamId)
-  const player   = activePlayerId ? players.find((p) => p.id === activePlayerId) ?? null : null
+  const player = activePlayerId ? players.find((p) => p.id === activePlayerId) ?? null : null
   const tabIndex = TABS.findIndex(t => t.id === activeTab)
+
+  console.log("team:", team);
+  console.log("players:", players);
+  console.log("matches:", matches);
+  console.log("activeTab:", activeTab);
+
 
   const handleTabClick = useCallback((id: TeamModalTab) => {
     setTab(id)
@@ -68,10 +74,24 @@ function ModalInner() {
       aria-modal="true"
       aria-label={`${team.name} — Team Details`}
     >
+      <GrabHandle aria-hidden="true" />
       <ModalHeader $teamColor={teamColor}>
         <TeamHeroRow>
           <FlagCircle aria-hidden="true">
-            {flagEmoji(team.code)}
+            {team.flagUrl ? (
+              <FlagImg
+                src={team.flagUrl}
+                alt={team.name}
+                onError={(e) => {
+                  // Fallback emoji nếu image fail load
+                  const target = e.currentTarget
+                  target.style.display = 'none'
+                  target.parentElement!.textContent = flagEmoji(team.code)
+                }}
+              />
+            ) : (
+              flagEmoji(team.code)
+            )}
           </FlagCircle>
 
           <TeamInfo>
@@ -115,9 +135,9 @@ function ModalInner() {
             exit="exit"
           >
             {activeTab === 'overview' && <OverviewTab team={team} players={players} matches={matches} />}
-            {activeTab === 'squad'    && <SquadTab    team={team} players={players} onPlayerClick={openPlayer} />}
-            {activeTab === 'stats'    && <TournamentStatsTab team={team} players={players} matches={matches} onPlayerClick={openPlayer} />}
-            {activeTab === 'matches'  && <MatchesTab  teamId={team.id} matches={matches} />}
+            {activeTab === 'squad' && <SquadTab team={team} players={players} onPlayerClick={openPlayer} />}
+            {activeTab === 'stats' && <TournamentStatsTab team={team} players={players} matches={matches} onPlayerClick={openPlayer} />}
+            {activeTab === 'matches' && <MatchesTab teamId={team.id} matches={matches} />}
           </ScrollPane>
         </AnimatePresence>
 
@@ -141,7 +161,20 @@ function ModalInner() {
               >
                 <DrawerHead>
                   <DrawerAvatar $color={teamColor}>
-                    {initials(player.name)}
+                    {player.photoUrl ? (
+                      <img
+                        src={player.photoUrl}
+                        alt={player.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => {
+                          const target = e.currentTarget
+                          target.style.display = 'none'
+                          target.parentElement!.textContent = initials(player.name)
+                        }}
+                      />
+                    ) : (
+                      initials(player.name)
+                    )}
                   </DrawerAvatar>
                   <DrawerPlayerInfo>
                     <DrawerName>{player.name}</DrawerName>
@@ -156,32 +189,48 @@ function ModalInner() {
                   <DrawerSection>
                     <DrawerSectionTitle>Tournament Stats</DrawerSectionTitle>
                     <DrawerStatGrid>
-                      {[
-                        { val: player.matchesPlayed, label: 'Matches' },
-                        { val: player.tournamentGoals, label: 'Goals' },
-                        { val: player.tournamentAssists, label: 'Assists' },
-                        { val: player.minutesPlayed, label: 'Minutes' },
-                        { val: player.tournamentYellowCards, label: 'Yellows', color: '#f59e0b' },
-                        { val: player.tournamentRedCards, label: 'Reds', color: '#ef4444' },
-                      ].map(({ val, label, color }) => (
-                        <DrawerStatCard key={label}>
-                          <DrawerStatVal style={color ? { color } : undefined}>{val}</DrawerStatVal>
-                          <DrawerStatLabel>{label}</DrawerStatLabel>
-                        </DrawerStatCard>
-                      ))}
+                      {(() => {
+                        // Defensive: cast to Number để tránh undefined/null/NaN render trống
+                        const safe = (n: number | undefined | null): number =>
+                          typeof n === 'number' && !isNaN(n) ? n : 0
+                        const stats = [
+                          { icon: '⚽',  val: safe(player.matchesPlayed),         label: 'Matches', color: '#3b82f6' },
+                          { icon: '🎯',  val: safe(player.tournamentGoals),       label: 'Goals',   color: '#10b981' },
+                          { icon: '🅰️', val: safe(player.tournamentAssists),     label: 'Assists', color: '#8b5cf6' },
+                          { icon: '⏱',  val: `${safe(player.minutesPlayed)}'`,   label: 'Minutes', color: '#0ea5e9' },
+                          { icon: '🟨',  val: safe(player.tournamentYellowCards), label: 'Yellow',  color: '#f59e0b' },
+                          { icon: '🟥',  val: safe(player.tournamentRedCards),    label: 'Red',     color: '#ef4444' },
+                        ]
+                        return stats.map(({ icon, val, label, color }) => (
+                          <DrawerStatCard key={label} $accent={color}>
+                            <DrawerStatIcon aria-hidden="true">{icon}</DrawerStatIcon>
+                            <DrawerStatVal style={{ color }}>{val}</DrawerStatVal>
+                            <DrawerStatLabel>{label}</DrawerStatLabel>
+                          </DrawerStatCard>
+                        ))
+                      })()}
                     </DrawerStatGrid>
                   </DrawerSection>
 
                   <DrawerSection>
                     <DrawerSectionTitle>Rating</DrawerSectionTitle>
-                    <DrawerStatVal>
-                      {player.rating.toFixed(1)}
-                      <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}> / 10</span>
-                    </DrawerStatVal>
-                    <RatingBar
-                      $pct={player.rating * 10}
-                      $color={getRatingColor(player.rating)}
-                    />
+                    {(() => {
+                      const rating = typeof player.rating === 'number' && !isNaN(player.rating)
+                        ? player.rating
+                        : 0
+                      return (
+                        <>
+                          <DrawerStatVal style={{ color: getRatingColor(rating) }}>
+                            {rating.toFixed(1)}
+                            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}> / 10</span>
+                          </DrawerStatVal>
+                          <RatingBar
+                            $pct={rating * 10}
+                            $color={getRatingColor(rating)}
+                          />
+                        </>
+                      )
+                    })()}
                   </DrawerSection>
 
                   <DrawerSection>

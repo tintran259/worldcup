@@ -105,6 +105,13 @@ export interface CacheConfig {
   standingsTtlSec: number
   teamTtlSec: number
   maxEntries: number
+  /** Upstash REST config — nếu cả url+token set thì dùng Redis thay memory */
+  redis?: {
+    url:       string
+    token:     string
+    keyPrefix: string
+    timeoutMs: number
+  }
 }
 
 // ── Feature flags ──────────────────────────────────────────────────────────────

@@ -18,8 +18,6 @@ const P_RED = 0.0018
 /** Các phút thường có thay người */
 const SUB_WINDOWS = [46, 61, 71, 76, 85]
 
-let _eventId = 1_000
-function nextId() { return `sim-${_eventId++}` }
 function roll(prob: number) { return Math.random() < prob }
 
 function pickPlayer(teamId: string, positions: Array<'GK' | 'DEF' | 'MID' | 'FWD'>) {

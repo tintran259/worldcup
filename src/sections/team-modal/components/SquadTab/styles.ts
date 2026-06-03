@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 export const Root = styled.div`
   display: flex;
@@ -17,6 +17,8 @@ export const GroupHeader = styled.div`
 `
 
 export const GroupLabel = styled.h3`
+  display: flex;
+  align-items: center;
   font-family: ${(p) => p.theme.fonts.broadcast};
   font-size: ${(p) => p.theme.fontSizes.xs};
   font-weight: ${(p) => p.theme.fontWeights.bold};
@@ -36,64 +38,120 @@ export const GroupCount = styled.span`
   padding: 1px 7px;
 `
 
-export const PlayerGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  ${(p) => p.theme.mq.md}  { grid-template-columns: repeat(2, 1fr); }
-  ${(p) => p.theme.mq.xl}  { grid-template-columns: repeat(3, 1fr); }
-`
+// ── List layout ──────────────────────────────────────────────────────────────
 
-export const CardRoot = styled(motion.div)`
-  background: ${(p) => p.theme.colors.bg.surface};
-  border: 1px solid ${(p) => p.theme.colors.border.subtle};
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  &:hover { border-color: ${(p) => p.theme.colors.border.default}; }
-`
-
-export const CardMain = styled.div`
+export const PlayerList = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+export const Row = styled(motion.div)`
+  display: grid;
+  grid-template-columns: 36px 32px 36px 1fr auto 48px;
+  grid-template-areas: 'pos jersey avatar name stats rating';
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 10px 14px;
+  background: ${(p) => p.theme.colors.bg.surface};
+  border: 1px solid ${(p) => p.theme.colors.border.subtle};
+  border-radius: 10px;
+  cursor: pointer;
+  will-change: transform;
+  transition: background 180ms ease, border-color 180ms ease;
+
+  /* Mobile: stats wrap below name */
+  ${(p) => p.theme.mq.maxMd} {
+    grid-template-columns: 32px 28px 32px 1fr 42px;
+    grid-template-areas:
+      'pos jersey avatar name rating'
+      'pos jersey avatar stats stats';
+    row-gap: 6px;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  &:hover {
+    background: ${(p) => p.theme.colors.bg.elevated};
+    border-color: ${(p) => p.theme.colors.border.default};
+  }
 `
 
-export const Avatar = styled.div<{ $color: string }>`
-  width: 44px; height: 44px;
+// ── Player avatar ────────────────────────────────────────────────────────────
+
+export const AvatarCol = styled.div`
+  grid-area: avatar;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: ${(p) => p.$color};
-  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  background: ${(p) => p.theme.colors.bg.elevated};
   flex-shrink: 0;
+  ${(p) => p.theme.mq.maxMd} { width: 32px; height: 32px; }
+`
+
+export const AvatarImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+`
+
+export const AvatarFallback = styled.div<{ $color: string }>`
+  width: 100%;
+  height: 100%;
+  background: ${(p) => p.$color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: ${(p) => p.theme.fonts.broadcast};
-  font-size: 14px;
+  font-size: 11px;
   font-weight: ${(p) => p.theme.fontWeights.black};
   color: #fff;
-  border: 2px solid rgba(255,255,255,0.30);
   letter-spacing: 0.02em;
-  position: relative;
+  ${(p) => p.theme.mq.maxMd} { font-size: 10px; }
 `
 
-export const CaptainBadge = styled.span`
-  position: absolute;
-  bottom: -2px; right: -2px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: #f59e0b;
-  border: 1px solid #fff;
+// ── Position badge (FIFA Online style) ───────────────────────────────────────
+
+export const PosBadge = styled.span`
+  grid-area: pos;
+  width: 36px; height: 24px;
+  border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 7px;
-  line-height: 1;
+  font-family: ${(p) => p.theme.fonts.broadcast};
+  font-size: 11px;
+  font-weight: ${(p) => p.theme.fontWeights.black};
+  letter-spacing: 0.04em;
+  ${(p) => p.theme.mq.maxMd} { width: 32px; height: 22px; font-size: 10px; }
 `
 
-export const PlayerInfo = styled.div`
-  flex: 1;
+// ── Jersey number ────────────────────────────────────────────────────────────
+
+export const JerseyCol = styled.div`
+  grid-area: jersey;
+  font-family: ${(p) => p.theme.fonts.broadcast};
+  font-size: ${(p) => p.theme.fontSizes.lg};
+  font-weight: ${(p) => p.theme.fontWeights.black};
+  color: ${(p) => p.theme.colors.text.disabled};
+  text-align: center;
+  ${(p) => p.theme.mq.maxMd} { font-size: ${(p) => p.theme.fontSizes.base}; }
+`
+
+// ── Name + meta ──────────────────────────────────────────────────────────────
+
+export const NameCol = styled.div`
+  grid-area: name;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 `
 
 export const PlayerName = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: ${(p) => p.theme.fonts.body};
   font-size: ${(p) => p.theme.fontSizes.sm};
   font-weight: ${(p) => p.theme.fontWeights.semibold};
@@ -108,56 +166,64 @@ export const PlayerMeta = styled.p`
   font-family: ${(p) => p.theme.fonts.mono};
   font-size: 10px;
   color: ${(p) => p.theme.colors.text.muted};
-  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `
 
-export const JerseyNum = styled.div`
+export const CaptainTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  background: #f59e0b;
+  color: #fff;
   font-family: ${(p) => p.theme.fonts.broadcast};
-  font-size: ${(p) => p.theme.fontSizes.xl};
-  font-weight: ${(p) => p.theme.fontWeights.black};
-  color: ${(p) => p.theme.colors.text.disabled};
-  min-width: 28px;
-  text-align: right;
-  flex-shrink: 0;
-`
-
-export const StatusBadge = styled.span<{ $s: string }>`
-  font-family: ${(p) => p.theme.fonts.mono};
   font-size: 9px;
-  font-weight: ${(p) => p.theme.fontWeights.bold};
-  letter-spacing: 0.05em;
-  padding: 2px 7px;
-  border-radius: 999px;
-  white-space: nowrap;
+  font-weight: ${(p) => p.theme.fontWeights.black};
+  line-height: 1;
   flex-shrink: 0;
 `
 
-export const StatsRow = styled(motion.div)`
-  border-top: 1px solid ${(p) => p.theme.colors.border.subtle};
-  background: ${(p) => p.theme.colors.bg.elevated};
-  padding: 10px 14px;
+// ── Inline stats ─────────────────────────────────────────────────────────────
+
+export const StatsCol = styled.div`
+  grid-area: stats;
   display: flex;
-  gap: 0;
-  overflow: hidden;
+  align-items: center;
+  gap: 14px;
+
+  ${(p) => p.theme.mq.maxMd} {
+    gap: 12px;
+    justify-content: space-between;
+    padding-top: 4px;
+    border-top: 1px solid ${(p) => p.theme.colors.border.subtle};
+  }
+
+  /* Trên màn rất nhỏ (≤479px): ẩn YC/RC để tránh cramped — full stats vẫn ở drawer */
+  ${(p) => p.theme.mq.maxSm} {
+    gap: 10px;
+    .stat-extra { display: none; }
+  }
 `
 
-export const StatChip = styled.div`
-  flex: 1;
-  text-align: center;
+export const StatItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 22px;
 `
 
-export const StatVal = styled.div<{ $color?: string }>`
+export const StatVal = styled.span<{ $color?: string }>`
   font-family: ${(p) => p.theme.fonts.broadcast};
-  font-size: ${(p) => p.theme.fontSizes.lg};
-  font-weight: ${(p) => p.theme.fontWeights.black};
+  font-size: ${(p) => p.theme.fontSizes.sm};
+  font-weight: ${(p) => p.theme.fontWeights.bold};
   color: ${(p) => p.$color ?? p.theme.colors.text.primary};
   line-height: 1;
 `
 
-export const StatKey = styled.div`
+export const StatKey = styled.span`
   font-family: ${(p) => p.theme.fonts.mono};
   font-size: 8px;
   letter-spacing: 0.06em;
@@ -166,14 +232,23 @@ export const StatKey = styled.div`
   margin-top: 2px;
 `
 
-export const RatingDot = styled.span<{ $color: string }>`
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
+// ── Rating pill ──────────────────────────────────────────────────────────────
+
+export const RatingPill = styled.div<{ $color: string }>`
+  grid-area: rating;
+  width: 48px; height: 32px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: ${(p) => p.theme.fonts.broadcast};
+  font-size: ${(p) => p.theme.fontSizes.base};
+  font-weight: ${(p) => p.theme.fontWeights.black};
+  color: #fff;
   background: ${(p) => p.$color};
-  margin-right: 3px;
-  vertical-align: middle;
+  box-shadow: 0 2px 6px ${(p) => p.$color}40;
+  ${(p) => p.theme.mq.maxMd} { width: 42px; height: 28px; font-size: ${(p) => p.theme.fontSizes.sm}; }
 `
+
+// ── Empty state ──────────────────────────────────────────────────────────────
 
 export const EmptyState = styled.div`
   text-align: center;

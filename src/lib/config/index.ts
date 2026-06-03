@@ -14,18 +14,19 @@
 // ── Runtime service (server + client for getClientConfig) ─────────────────────
 export {
   getConfig,
-  resetConfig,
   getCompetition,
-  getProviderIds,
   getProviderChain,
-  getProviderConfig,
-  getCacheConfig,
-  isEnabled,
   getClientConfig,
 } from './service'
 
 // ── Competition registry ───────────────────────────────────────────────────────
 export { COMPETITIONS, getCompetitionByKey, ALL_COMPETITION_KEYS } from './competitions'
+
+// ── Runtime competition context (SERVER-ONLY) ─────────────────────────────────
+// KHÔNG re-export từ đây vì competitionContext dùng node:async_hooks
+// (sẽ break client bundle). Server-side import trực tiếp:
+//   import { withCompetition, getCurrentCompetition }
+//   from '@/lib/config/competitionContext'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type {

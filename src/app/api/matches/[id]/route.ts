@@ -7,6 +7,7 @@
 
 import { NextRequest } from 'next/server'
 import { getMatchRepository } from '@/lib/server'
+import { cacheHeaders, matchProfile } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,12 +22,8 @@ export async function GET(
     const match = await getMatchRepository().findById(id)
     if (!match) return Response.json({ error: 'Match not found' }, { status: 404 })
 
-    const maxAge = match.status === 'live' ? 15 : 60
-
     return Response.json(match, {
-      headers: {
-        'Cache-Control': `public, s-maxage=${maxAge}, stale-while-revalidate=${maxAge * 2}`,
-      },
+      headers: cacheHeaders(matchProfile(match.status)),
     })
 
   } catch (err) {

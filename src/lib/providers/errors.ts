@@ -18,7 +18,7 @@ export class ProviderError extends Error {
 
 export class ProviderRateLimitError extends ProviderError {
   constructor(provider: ProviderName, public readonly retryAfterMs: number) {
-    super(provider, `Rate limited — thử lại sau ${retryAfterMs}ms`)
+    super(provider, `Rate limited (quota exceeded) — retry after ${retryAfterMs}ms`)
     this.name = 'ProviderRateLimitError'
   }
 }
@@ -26,7 +26,7 @@ export class ProviderRateLimitError extends ProviderError {
 // Circuit breaker mở — provider đang bị tạm ngưng
 export class CircuitOpenError extends Error {
   constructor(public readonly provider: ProviderName) {
-    super(`Circuit breaker mở cho provider: ${provider}`)
+    super(`Circuit breaker open for provider: ${provider}`)
     this.name = 'CircuitOpenError'
   }
 }
