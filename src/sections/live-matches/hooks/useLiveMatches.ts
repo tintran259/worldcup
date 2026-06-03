@@ -16,7 +16,10 @@ import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useCompetition } from '@/hooks/useCompetition'
+import { mockOr } from '@/utils/env'
 import type { Match } from '@/types/domain.types'
+
+const EMPTY_MATCHES: Match[] = []
 
 export interface UseLiveMatchesReturn {
   liveMatches: Match[]
@@ -37,8 +40,9 @@ export function useLiveMatches(): UseLiveMatchesReturn {
     refetchInterval: isLive ? 60_000 : false,
   })
 
-  const mockMatches = MOCK_ROUNDS.flatMap((r) => r.matches)
-  const matches: Match[] = data ?? mockMatches
+  // Dev: mock data để UI có gì hiển thị khi API chưa wire.
+  // Production: empty → user thấy empty state thật, không che lỗi/loading.
+  const matches: Match[] = data ?? mockOr(MOCK_ROUNDS.flatMap((r) => r.matches), EMPTY_MATCHES)
 
   const { matchInvolvesFavorite, hasActiveFilter } = useFavorites()
 

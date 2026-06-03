@@ -21,7 +21,10 @@ import { queryKeys }     from '@/queries/keys'
 import { MOCK_ROUNDS }   from '@/lib/mock'
 import { TOURNAMENT_ROUNDS } from '@/constants/tournament'
 import { useCompetition } from '@/hooks/useCompetition'
+import { mockOr } from '@/utils/env'
 import type { Match, TournamentRound } from '@/types/domain.types'
+
+const EMPTY_MATCHES: Match[] = []
 
 export interface UseHeaderStatsReturn {
   liveCount:      number
@@ -70,7 +73,8 @@ export function useHeaderStats(): UseHeaderStatsReturn {
     refetchInterval: isLive ? 60_000 : false,
   })
 
-  const matches = data ?? MOCK_ROUNDS.flatMap((r) => r.matches)
+  // Dev: mock all matches; Production: empty → "no data yet" UI
+  const matches = data ?? mockOr(MOCK_ROUNDS.flatMap((r) => r.matches), EMPTY_MATCHES)
 
   const liveMatches      = matches.filter((m) => m.status === 'live')
   const upcomingMatches  = matches.filter((m) => m.status === 'upcoming')

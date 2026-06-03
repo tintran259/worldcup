@@ -17,7 +17,10 @@ import { queryKeys } from '@/queries/keys'
 import { GROUP_STANDINGS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useCompetition } from '@/hooks/useCompetition'
+import { mockOr } from '@/utils/env'
 import type { GroupStage } from '@/lib/mock/types'
+
+const EMPTY_GROUPS: GroupStage[] = []
 
 export interface UseStandingsReturn {
   groups: GroupStage[]
@@ -36,7 +39,9 @@ export function useStandings(): UseStandingsReturn {
     refetchInterval: false,
   })
 
-  const allGroups = (data as GroupStage[] | undefined) ?? GROUP_STANDINGS
+  // Dev: mock GROUP_STANDINGS để UI luôn có data hiển thị.
+  // Production: empty → user thấy "No standings" state thật.
+  const allGroups = (data as GroupStage[] | undefined) ?? mockOr(GROUP_STANDINGS, EMPTY_GROUPS)
   const { favoriteIds, hasActiveFilter } = useFavorites()
 
   const groups = useMemo(() => {

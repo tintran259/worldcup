@@ -6,8 +6,9 @@
  * Data flow:
  *   BracketCanvas → useBracketData → bracketService → /api/tournament/bracket
  *
- * Fallback: mock MOCK_ROUNDS are used when the API is unavailable
- * so the bracket always renders something meaningful.
+ * Fallback:
+ *   Dev: MOCK_ROUNDS để UI luôn có data render — tiện build feature.
+ *   Production: empty array — user thấy empty state thật, không che lỗi.
  */
 
 import { useQuery } from '@tanstack/react-query'
@@ -15,7 +16,10 @@ import { bracketService } from '../services/bracket.service'
 import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { useCompetition } from '@/hooks/useCompetition'
+import { mockOr } from '@/utils/env'
 import type { BracketRound } from '@/types/domain.types'
+
+const EMPTY_ROUNDS: BracketRound[] = []
 
 export interface UseBracketDataReturn {
   rounds: BracketRound[]
@@ -35,8 +39,7 @@ export function useBracketData(): UseBracketDataReturn {
     refetchInterval: false,
   })
 
-  // Fall back to mock data when the API is unavailable
-  const rounds: BracketRound[] = data ?? MOCK_ROUNDS
+  const rounds: BracketRound[] = data ?? mockOr(MOCK_ROUNDS, EMPTY_ROUNDS)
 
   const allMatches = rounds.flatMap((r) => r.matches)
   const hasLiveMatches = allMatches.some((m) => m.status === 'live')

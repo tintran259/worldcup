@@ -13,7 +13,10 @@ import { queryKeys } from '@/queries/keys'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useCompetition } from '@/hooks/useCompetition'
+import { mockOr } from '@/utils/env'
 import type { Match } from '@/types/domain.types'
+
+const EMPTY_MATCHES: Match[] = []
 
 export interface UseMatchHistoryReturn {
   completedMatches: Match[]
@@ -32,11 +35,12 @@ export function useMatchHistory(): UseMatchHistoryReturn {
     refetchInterval: false,
   })
 
-  const mockCompleted = MOCK_ROUNDS
-    .flatMap((r) => r.matches)
-    .filter((m) => m.status === 'completed')
-
-  const allCompleted = data ?? mockCompleted
+  // Dev: mock completed matches; Production: empty array
+  const fallback = mockOr(
+    MOCK_ROUNDS.flatMap((r) => r.matches).filter((m) => m.status === 'completed'),
+    EMPTY_MATCHES,
+  )
+  const allCompleted = data ?? fallback
   const { matchInvolvesFavorite, hasActiveFilter } = useFavorites()
 
   const completedMatches = useMemo(() => {
