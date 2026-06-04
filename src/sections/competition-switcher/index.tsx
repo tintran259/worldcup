@@ -153,23 +153,21 @@ export function CompetitionSwitcher() {
             <List>
               {competitions.map((comp, idx) => {
                 const isSelected = comp.key === activeKey
-                // Upcoming = chưa có data → disable để không cho chọn (tránh tốn quota)
-                const isDisabled = comp.status === 'upcoming'
+                // Upcoming vẫn cho chọn — sẽ show countdown modal blocking
+                // cho tới khi giải bắt đầu, hết countdown tự fetch API.
                 return (
                   <Card
                     key={comp.key}
                     $selected={isSelected}
                     $status={comp.status}
-                    $disabled={isDisabled}
+                    $disabled={false}
                     custom={idx}
                     variants={rowVariants}
                     initial="hidden"
                     animate="visible"
-                    disabled={isDisabled}
-                    onClick={isDisabled ? undefined : () => handleSelect(comp.key)}
-                    whileTap={isDisabled ? undefined : { scale: 0.98 }}
-                    aria-disabled={isDisabled}
-                    title={isDisabled ? 'Giải đấu chưa bắt đầu — vui lòng quay lại sau' : undefined}
+                    onClick={() => handleSelect(comp.key)}
+                    whileTap={{ scale: 0.98 }}
+                    title={comp.status === 'upcoming' ? 'Giải đấu chưa bắt đầu — sẽ hiện countdown' : undefined}
                   >
                     <CardTop>
                       <CardName>{comp.name}</CardName>

@@ -62,6 +62,21 @@ export function createMatchRepository(bundles: ProviderBundle[], cache: Cache) {
       )
     },
 
+    /**
+     * Cache-only read — KHÔNG trigger API call.
+     * Dùng cho /api/stream/live SSE: chỉ đọc cache có sẵn, broadcast events tới
+     * tất cả connected clients mà không tăng quota.
+     *
+     * Cache được populate bởi /api/matches?status=live khi user load app (hook
+     * useLiveMatches). SSE chỉ là consumer thụ động → zero direct API impact.
+     *
+     * @returns Match[] nếu cache hit, null nếu cache miss (caller xử lý empty).
+     */
+    async findLiveFromCache(): Promise<Match[] | null> {
+      const comp = getCurrentCompetition()
+      return cache.get<Match[]>(cacheKey.liveMatches(comp.key))
+    },
+
     async findAll(): Promise<Match[]> {
       const comp = getCurrentCompetition()
       const firstId = Object.values(comp.providerIds)[0]

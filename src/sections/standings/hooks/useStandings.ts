@@ -28,7 +28,7 @@ export interface UseStandingsReturn {
 }
 
 export function useStandings(): UseStandingsReturn {
-  const { key: compKey } = useCompetition()
+  const { key: compKey, queryEnabled } = useCompetition()
 
   // KHÔNG polling — standings chỉ fetch 1 lần khi đổi competition.
   // User phải reload trang nếu muốn cập nhật.
@@ -37,6 +37,7 @@ export function useStandings(): UseStandingsReturn {
     queryFn: () => standingsService.fetchAll(),
     staleTime: Infinity,
     refetchInterval: false,
+    enabled: queryEnabled,
   })
 
   // Dev: mock GROUP_STANDINGS để UI luôn có data hiển thị.

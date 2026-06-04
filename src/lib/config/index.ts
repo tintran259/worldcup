@@ -29,6 +29,9 @@ export { COMPETITIONS, getCompetitionByKey, ALL_COMPETITION_KEYS } from './compe
 //   from '@/lib/config/competitionContext'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+// Chỉ export types thực sự được import từ bên ngoài lib/config.
+// Types nội bộ (CacheConfig, ApiConfig, ProvidersConfig, FeatureFlags,
+// SportMonksCredentials, SportradarCredentials, ProviderConfig...) giữ ở types.ts.
 export type {
   AppConfig,
   ClientConfig,
@@ -36,17 +39,9 @@ export type {
   CompetitionKey,
   CompetitionType,
   Environment,
-  FeatureFlags,
   ProviderCompetitionIds,
-  ProviderConfig,
   ProviderName,
-  CacheConfig,
-  ApiConfig,
-  ProvidersConfig,
-  // Provider credential shapes — used by factory.ts
   ApiFootballCredentials,
-  SportMonksCredentials,
-  SportradarCredentials,
 } from './types'
 
 // ── Schema constants (safe to use in UI validation) ───────────────────────────

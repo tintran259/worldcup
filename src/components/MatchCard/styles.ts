@@ -57,11 +57,6 @@ export const kfScoreFlash = keyframes`
   100% { transform: scale(1); }
 `
 
-export const kfShimmer = keyframes`
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-`
-
 // ── Framer Motion variant sets ────────────────────────────────────────────────
 
 export const cardVariants = {

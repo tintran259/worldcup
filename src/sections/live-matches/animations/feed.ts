@@ -18,11 +18,6 @@ export const upcomingSection: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.05 } },
 }
 
-export const completedSection: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.10 } },
-}
-
 /** Pulsing dot before the "Đang diễn ra" live label. */
 export const pulseDotAnimate = {
   scale: [1, 1.5, 1] as [number, number, number],

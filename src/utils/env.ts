@@ -14,7 +14,7 @@ export const IS_DEV = process.env.NODE_ENV !== 'production'
  * Dev/test: dùng — UX vẫn render khi API chưa wire.
  * Production: KHÔNG — trả empty state để user thấy data thật hoặc lỗi rõ ràng.
  */
-export const USE_MOCK_FALLBACK = IS_DEV
+const USE_MOCK_FALLBACK = IS_DEV
 
 /**
  * Pick value theo môi trường — pattern cho mock fallback.

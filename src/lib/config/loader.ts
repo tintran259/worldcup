@@ -117,11 +117,11 @@ export function loadConfig(): AppConfig {
       // Redis chỉ enable khi cả url+token được set (avoid partial config)
       redis: env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
         ? {
-            url:       env.UPSTASH_REDIS_REST_URL,
-            token:     env.UPSTASH_REDIS_REST_TOKEN,
-            keyPrefix: env.REDIS_KEY_PREFIX,
-            timeoutMs: env.REDIS_TIMEOUT_MS,
-          }
+          url: env.UPSTASH_REDIS_REST_URL,
+          token: env.UPSTASH_REDIS_REST_TOKEN,
+          keyPrefix: env.REDIS_KEY_PREFIX,
+          timeoutMs: env.REDIS_TIMEOUT_MS,
+        }
         : undefined,
     },
     features: {

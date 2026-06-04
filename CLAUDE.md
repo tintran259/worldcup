@@ -21,6 +21,15 @@ Path alias: `@/` → `src/`. The app is a single page (`/`) rendered by `app/pag
 
 ---
 
+## Core principles (ALWAYS)
+
+These rules override convenience. Apply them to every change.
+
+- **Preserve existing flow first.** A feature/refactor MUST NOT silently alter behavior that other parts of the app rely on. If you see an opportunity to optimize or restructure existing logic, **ASK THE USER FIRST** with a concrete description of (a) the current behavior, (b) the proposed change, and (c) the trade-off. Wait for approval before touching it.
+- **Responsive UI is mandatory.** Every visual change must work across breakpoints — mobile (`maxSm` ≤479px, `maxMd` ≤767px), tablet, and desktop. Use existing theme breakpoints (`p.theme.mq.maxSm` / `maxMd` / etc.), not arbitrary `@media` queries. No PR is "done" until verified on a narrow viewport (≤375px).
+
+---
+
 ## Folder contract (STRICT — do not deviate)
 
 Each folder has exactly one role. **Putting code in the wrong folder is the most common mistake.** Use this table as a flowchart before creating any new file.

@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server'
 import { getStandingsRepository } from '@/lib/server'
 import { GROUP_STANDINGS, GROUP_MAP } from '@/lib/mock'
 import { withCompetition } from '@/lib/config/competitionContext'
-import { handleProviderError } from '../_helpers'
+import { handleProviderError, skipIfUpcoming } from '../_helpers'
 import { cacheHeaders } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +17,9 @@ export async function GET(request: NextRequest) {
   const competitionKey = request.nextUrl.searchParams.get('competition')
 
   return withCompetition(competitionKey, async () => {
+    const skip = skipIfUpcoming([])
+    if (skip) return skip
+
     try {
       const repo = getStandingsRepository()
       const data = groupId ? await repo.findGroup(groupId) : await repo.findAllGroups()

@@ -50,12 +50,6 @@ function ModalInner() {
   const player = activePlayerId ? players.find((p) => p.id === activePlayerId) ?? null : null
   const tabIndex = TABS.findIndex(t => t.id === activeTab)
 
-  console.log("team:", team);
-  console.log("players:", players);
-  console.log("matches:", matches);
-  console.log("activeTab:", activeTab);
-
-
   const handleTabClick = useCallback((id: TeamModalTab) => {
     setTab(id)
   }, [setTab])

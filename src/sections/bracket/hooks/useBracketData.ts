@@ -30,13 +30,14 @@ export interface UseBracketDataReturn {
 }
 
 export function useBracketData(): UseBracketDataReturn {
-  const { key: compKey } = useCompetition()
+  const { key: compKey, queryEnabled } = useCompetition()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [...queryKeys.tournament.bracket(), compKey] as const,
     queryFn: () => bracketService.fetchRounds(),
     staleTime: Infinity,
     refetchInterval: false,
+    enabled: queryEnabled,
   })
 
   const rounds: BracketRound[] = data ?? mockOr(MOCK_ROUNDS, EMPTY_ROUNDS)

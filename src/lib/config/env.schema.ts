@@ -81,12 +81,12 @@ export const serverEnvSchema = z.object({
   // ── Redis (Upstash) — Phase 2: shared cache cho multi-instance ─────────────
   // Nếu cả 2 var được set → dùng RedisCache. Nếu không → fallback MemoryCache.
   // Lấy ở: https://console.upstash.com/redis → Create Database → REST API tab.
-  UPSTASH_REDIS_REST_URL:   z.url().optional(),
+  UPSTASH_REDIS_REST_URL: z.url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   /** Prefix để namespace key (tránh đụng app khác cùng Redis instance) */
-  REDIS_KEY_PREFIX:         z.string().default('wc'),
+  REDIS_KEY_PREFIX: z.string().default('wc'),
   /** Timeout cho mỗi Redis request — fallback nhanh nếu Redis slow */
-  REDIS_TIMEOUT_MS:         posInt(2_000),
+  REDIS_TIMEOUT_MS: posInt(2_000),
 
   // ── Feature flags ──────────────────────────────────────────────────────────
   FEATURE_LIVE_UPDATES: boolFlag(true),

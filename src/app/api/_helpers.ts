@@ -8,7 +8,32 @@
  * Bộc lộ lỗi sớm trong production thay vì silently dùng mock.
  */
 
+import { isCurrentCompetitionUpcoming, getCurrentCompetition } from '@/lib/config/competitionContext'
+
 const IS_DEV = process.env.NODE_ENV !== 'production'
+
+/**
+ * Defense-in-depth: nếu competition chưa bắt đầu → short-circuit, return empty.
+ * Tránh tốn quota api-football cho data không tồn tại.
+ *
+ * Trả về Response 200 với empty data + header báo lý do.
+ * Caller dùng trong route handler:
+ *
+ *   const skip = skipIfUpcoming([])
+ *   if (skip) return skip
+ */
+export function skipIfUpcoming<T>(emptyData: T): Response | null {
+  if (!isCurrentCompetitionUpcoming()) return null
+  const comp = getCurrentCompetition()
+  console.log(`[skipIfUpcoming] Competition "${comp.key}" upcoming — returning empty (skip API call)`)
+  return Response.json(emptyData, {
+    headers: {
+      'X-Data-Source': 'skipped-upcoming',
+      'X-Skip-Reason': `Competition "${comp.key}" not started yet`,
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+    },
+  })
+}
 
 export interface FallbackOptions<T> {
   /** Tên route để log (e.g. "matches", "standings") */

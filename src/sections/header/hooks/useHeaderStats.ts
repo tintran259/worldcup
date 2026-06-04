@@ -62,7 +62,7 @@ function getEarliestRound(matches: Match[]): TournamentRound | null {
 }
 
 export function useHeaderStats(): UseHeaderStatsReturn {
-  const { key: compKey, isLive } = useCompetition()
+  const { key: compKey, isLive, queryEnabled } = useCompetition()
 
   // Cùng queryKey với useLiveMatches → share cache (1 request phục vụ cả 2 hooks).
   // Polling chỉ khi giải đang live.
@@ -71,6 +71,7 @@ export function useHeaderStats(): UseHeaderStatsReturn {
     queryFn:         () => headerService.fetchAllMatches(),
     staleTime:       isLive ? 30_000 : Infinity,
     refetchInterval: isLive ? 60_000 : false,
+    enabled:         queryEnabled,
   })
 
   // Dev: mock all matches; Production: empty → "no data yet" UI

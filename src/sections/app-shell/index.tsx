@@ -1,12 +1,14 @@
 'use client'
 
-import { useRealtime }            from '@/modules/realtime/useRealtime'
+import { useRealtime } from '@/modules/realtime/useRealtime'
 import { useRealtimeQueryBridge } from '@/modules/realtime/queryBridge'
-import { LiveEventToast }          from '@/components/LiveEventToast'
-import { QuotaBanner }             from '@/components/QuotaBanner'
-import { TeamModal }               from '@/sections/team-modal'
-import { FavoritesFilterModal }    from '@/sections/favorites-filter'
-import { CompetitionSwitcher }     from '@/sections/competition-switcher'
+import { useCompetition } from '@/hooks/useCompetition'
+import { LiveEventToast } from '@/components/LiveEventToast'
+import { QuotaBanner } from '@/components/QuotaBanner'
+import { TeamModal } from '@/sections/team-modal'
+import { FavoritesFilterModal } from '@/sections/favorites-filter'
+import { CompetitionSwitcher } from '@/sections/competition-switcher'
+import { UpcomingCompetitionModal } from '@/sections/upcoming-modal'
 import { liveBlobAnimate, liveBlobTransition } from './animations/blobs'
 import {
   Shell,
@@ -18,13 +20,16 @@ import {
 } from './styles'
 
 export interface AppShellProps {
-  children:        React.ReactNode
+  children: React.ReactNode
   hasLiveMatches?: boolean
 }
 
 /** Boots realtime client (mock / SSE / WS) + bridges events to React Query. */
 function RealtimeProvider() {
-  useRealtime({ speed: 'normal', autoStart: true })
+  const { queryEnabled } = useCompetition()
+  // Disable simulation/realtime entirely khi competition chưa bắt đầu —
+  // tránh queryBridge invalidate queries (sẽ refetch) hoặc SSE poll quota.
+  useRealtime({ speed: 'normal', autoStart: queryEnabled })
   useRealtimeQueryBridge()
   return null
 }
@@ -34,7 +39,7 @@ export function AppShell({ children, hasLiveMatches = false }: AppShellProps) {
     <Shell>
       {/* Ambient background layer */}
       <DotGrid aria-hidden="true" />
-      <GlowBlobBlue  aria-hidden="true" />
+      <GlowBlobBlue aria-hidden="true" />
       <GlowBlobAmber aria-hidden="true" />
       <GlowBlobLive
         aria-hidden="true"
@@ -51,6 +56,7 @@ export function AppShell({ children, hasLiveMatches = false }: AppShellProps) {
       <TeamModal />
       <FavoritesFilterModal />
       <CompetitionSwitcher />
+      <UpcomingCompetitionModal />
       <QuotaBanner />
     </Shell>
   )

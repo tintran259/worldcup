@@ -17,7 +17,7 @@
 import { NextRequest } from 'next/server'
 import { getTeamRepository, getStatsRepository } from '@/lib/server'
 import { withCompetition } from '@/lib/config/competitionContext'
-import { handleProviderError } from '../../_helpers'
+import { handleProviderError, skipIfUpcoming } from '../../_helpers'
 import { getTeam, getTeamPlayers, ALL_TEAMS } from '@/lib/mock'
 import { cacheHeaders } from '@/lib/cache'
 import type { ExtendedTeam, StarPlayer, TopScorer } from '@/lib/mock/types'
@@ -145,6 +145,9 @@ export async function GET(
 
   // ── Provider chain path (cho ID không match mock) ───────────────────────────
   return withCompetition(competitionKey, async () => {
+    const skip = skipIfUpcoming<{ error: string; id: string }>({ error: 'Competition not started', id })
+    if (skip) return skip
+
     try {
       const repo = getTeamRepository()
       const team = await repo.findById(id)

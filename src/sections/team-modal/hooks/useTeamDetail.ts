@@ -22,8 +22,9 @@ export interface UseTeamDetailReturn {
 }
 
 export function useTeamDetail(teamId: string | null): UseTeamDetailReturn {
-  const enabled = !!teamId
-  const { key: compKey } = useCompetition()
+  const { key: compKey, queryEnabled } = useCompetition()
+  // Cần cả teamId VÀ competition không upcoming
+  const enabled = !!teamId && queryEnabled
 
   const teamQuery = useQuery({
     queryKey: ['team-detail', teamId, compKey] as const,

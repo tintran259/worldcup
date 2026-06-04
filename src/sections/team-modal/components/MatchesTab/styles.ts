@@ -86,11 +86,6 @@ export const OpponentRow = styled.div`
   ${(p) => p.theme.mq.maxSm} { gap: 5px; }
 `
 
-export const OpponentFlag = styled.span`
-  font-size: 18px;
-  line-height: 1;
-`
-
 export const OpponentName = styled.span`
   font-family: ${(p) => p.theme.fonts.body};
   font-size: ${(p) => p.theme.fontSizes.sm};

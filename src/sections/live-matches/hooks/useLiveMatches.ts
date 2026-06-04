@@ -29,7 +29,7 @@ export interface UseLiveMatchesReturn {
 }
 
 export function useLiveMatches(): UseLiveMatchesReturn {
-  const { key: compKey, isLive } = useCompetition()
+  const { key: compKey, isLive, queryEnabled } = useCompetition()
 
   const { data, isLoading } = useQuery({
     queryKey: [...queryKeys.matches.list(), compKey] as const,
@@ -38,6 +38,7 @@ export function useLiveMatches(): UseLiveMatchesReturn {
     // Giải đang live → poll 60s (đã giảm từ 30s để tiết kiệm quota).
     staleTime: isLive ? 30_000 : Infinity,
     refetchInterval: isLive ? 60_000 : false,
+    enabled: queryEnabled,
   })
 
   // Dev: mock data để UI có gì hiển thị khi API chưa wire.

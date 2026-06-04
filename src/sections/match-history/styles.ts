@@ -98,25 +98,3 @@ export const MetaDot = styled.span`
   opacity: 0.6;
 `
 
-// Pill nhỏ hiện số thẻ vàng/đỏ — chỉ show khi có data
-export const CardPill = styled.span<{ $color: 'yellow' | 'red' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: ${(p) => p.$color === 'yellow' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)'};
-  color:      ${(p) => p.$color === 'yellow' ? '#92400e'                : '#991b1b'};
-  font-size: 9px;
-  font-weight: ${(p) => p.theme.fontWeights.bold};
-
-  /* Khối màu nhỏ */
-  &::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 8px;
-    border-radius: 1px;
-    background: ${(p) => p.$color === 'yellow' ? '#f59e0b' : '#ef4444'};
-  }
-`

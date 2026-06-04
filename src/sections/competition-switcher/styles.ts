@@ -7,7 +7,9 @@ export const Backdrop = styled(motion.div)`
   inset: 0;
   background: rgba(6, 11, 24, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 1200;
+  /* Phải HIGHER hơn UpcomingCompetitionModal (z-3000) để user mở được switcher
+   * từ button "Chọn giải đấu khác" trong upcoming modal. */
+  z-index: 3500;
   display: flex;
   justify-content: center;
   align-items: flex-end;

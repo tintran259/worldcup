@@ -28,7 +28,7 @@ export interface UseStatsReturn extends StatsResponse {
 }
 
 export function useStats(): UseStatsReturn {
-  const { key: compKey } = useCompetition()
+  const { key: compKey, queryEnabled } = useCompetition()
 
   // KHÔNG polling — stats fetch 1 lần khi đổi competition.
   const { data, isLoading } = useQuery({
@@ -36,6 +36,7 @@ export function useStats(): UseStatsReturn {
     queryFn: () => statsService.fetch(),
     staleTime: Infinity,
     refetchInterval: false,
+    enabled: queryEnabled,
   })
 
   const raw = data ?? EMPTY

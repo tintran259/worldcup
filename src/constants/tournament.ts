@@ -51,11 +51,3 @@ export const ROUND_LABELS_VI: Record<TournamentRound, string> = {
   'final':         'Chung kết',
 }
 
-/** Tournament host nations. */
-export const HOST_NATIONS = ['USA', 'Canada', 'Mexico'] as const
-
-/** Total number of group-stage matches. */
-export const GROUP_STAGE_MATCH_COUNT = 48
-
-/** Total number of teams in the tournament. */
-export const TOTAL_TEAMS = 48

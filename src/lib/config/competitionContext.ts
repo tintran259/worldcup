@@ -68,6 +68,18 @@ export function getCurrentProviderIds(
   return ids ?? null
 }
 
+/**
+ * Detect status của competition hiện tại (server-side).
+ * Dùng trong BFF route để short-circuit upcoming competition → tiết kiệm quota.
+ */
+export function isCurrentCompetitionUpcoming(): boolean {
+  const comp = getCurrentCompetition()
+  const ids = Object.values(comp.providerIds)[0]
+  if (!ids?.dateFrom) return false
+  const startMs = new Date(ids.dateFrom).getTime()
+  return Date.now() < startMs
+}
+
 /** Validate + cast competition key */
 function normalizeKey(key: string | null | undefined): string | null {
   if (!key) return null

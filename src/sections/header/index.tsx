@@ -1,11 +1,11 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { LivePulse }           from '@/components/LivePulse'
+import { LivePulse } from '@/components/LivePulse'
 import { usePanelStore, useFavoritesStore, useCompetitionStore } from '@/stores'
-import { useBreakpoint }        from '@/hooks/useBreakpoint'
-import { useCompetition }       from '@/hooks/useCompetition'
-import { useHeaderStats }       from './hooks/useHeaderStats'
+import { useBreakpoint } from '@/hooks/useBreakpoint'
+import { useCompetition } from '@/hooks/useCompetition'
+import { useHeaderStats } from './hooks/useHeaderStats'
 import {
   TOURNAMENT_ROUNDS,
   ROUND_SHORT_LABELS,
@@ -55,14 +55,14 @@ const DISPLAY_LABELS = DISPLAY_ROUNDS.map((r) => ROUND_SHORT_LABELS[r])
 
 export function Header() {
   const { isCollapsed, toggleCollapse, openMobilePanel, isMobileOpen } = usePanelStore()
-  const { isMobile }                   = useBreakpoint()
+  const { isMobile } = useBreakpoint()
   const {
     liveCount,
     completedCount,
     currentRound,
     isFinished,
   } = useHeaderStats()
-  const competition                    = useCompetition()
+  const competition = useCompetition()
 
   // Label trên phase pill — dynamic theo current round
   const phaseLabel = isFinished
@@ -197,14 +197,14 @@ export function Header() {
           <ConnectionLabel>Live</ConnectionLabel>
         </ConnectionGroup>
 
-        <PanelToggleBtn onClick={handlePanelAction} whileTap={{ scale: 0.96 }}>
+        {/* <PanelToggleBtn onClick={handlePanelAction} whileTap={{ scale: 0.96 }}>
           <ToggleIcon $open={isPanelVisible} />
           {isPanelVisible ? 'Hide Panel' : 'Show Panel'}
         </PanelToggleBtn>
 
         <MobilePanelBtn onClick={handlePanelAction} whileTap={{ scale: 0.94 }}>
           ☰
-        </MobilePanelBtn>
+        </MobilePanelBtn> */}
       </RightSection>
     </HeaderRoot>
   )

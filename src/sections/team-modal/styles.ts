@@ -1,38 +1,9 @@
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
 
-export const HEADER_BG = 'linear-gradient(150deg, rgba(6,11,24,0.98) 0%, rgba(12,20,44,0.97) 100%)'
-const BORDER           = 'rgba(255,255,255,0.10)'
-
-export const backdropV = {
-  hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.22 } },
-  exit:    { opacity: 0, transition: { duration: 0.18 } },
-}
-
-export const containerV = {
-  hidden:  { opacity: 0, scale: 0.96, y: 18 },
-  visible: {
-    opacity: 1, scale: 1, y: 0,
-    transition: { type: 'spring' as const, stiffness: 380, damping: 32 },
-  },
-  exit: { opacity: 0, scale: 0.97, y: 10, transition: { duration: 0.18, ease: 'easeIn' as const } },
-}
-
-export const tabContentV = {
-  enter:  (d: number) => ({ x: d > 0 ?  28 : -28, opacity: 0 }),
-  center: { x: 0, opacity: 1, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] as const } },
-  exit:   (d: number) => ({
-    x: d > 0 ? -28 : 28, opacity: 0,
-    transition: { duration: 0.14 },
-  }),
-}
-
-export const drawerV = {
-  hidden:  { x: '100%' },
-  visible: { x: 0, transition: { type: 'spring' as const, stiffness: 340, damping: 30 } },
-  exit:    { x: '100%', transition: { duration: 0.20, ease: 'easeIn' as const } },
-}
+// HEADER_BG dùng trong same-file (ModalHeader, DrawerHead)
+const HEADER_BG = 'linear-gradient(150deg, rgba(6,11,24,0.98) 0%, rgba(12,20,44,0.97) 100%)'
+const BORDER    = 'rgba(255,255,255,0.10)'
 
 export const Backdrop = styled(motion.div)`
   position: fixed;

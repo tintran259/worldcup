@@ -14,7 +14,7 @@ import { NextRequest } from 'next/server'
 import { getMatchRepository } from '@/lib/server'
 import { MOCK_ROUNDS, getTeam, ALL_TEAMS } from '@/lib/mock'
 import { withCompetition } from '@/lib/config/competitionContext'
-import { handleProviderError } from '../_helpers'
+import { handleProviderError, skipIfUpcoming } from '../_helpers'
 import { cacheHeaders } from '@/lib/cache'
 import type { Match } from '@/types/domain.types'
 
@@ -46,6 +46,9 @@ export async function GET(request: NextRequest) {
   const competitionKey = searchParams.get('competition')
 
   return withCompetition(competitionKey, async () => {
+    const skip = skipIfUpcoming<Match[]>([])
+    if (skip) return skip
+
     try {
       const repo = getMatchRepository()
       let matches: Match[]

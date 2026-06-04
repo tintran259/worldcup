@@ -24,7 +24,7 @@ export interface UseMatchHistoryReturn {
 }
 
 export function useMatchHistory(): UseMatchHistoryReturn {
-  const { key: compKey } = useCompetition()
+  const { key: compKey, queryEnabled } = useCompetition()
 
   // KHÔNG polling — trận đã kết thúc không thay đổi.
   // Fetch 1 lần khi đổi competition rồi giữ vĩnh viễn.
@@ -33,6 +33,7 @@ export function useMatchHistory(): UseMatchHistoryReturn {
     queryFn: () => matchHistoryService.fetchCompleted(),
     staleTime: Infinity,
     refetchInterval: false,
+    enabled: queryEnabled,
   })
 
   // Dev: mock completed matches; Production: empty array

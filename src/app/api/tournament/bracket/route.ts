@@ -8,7 +8,7 @@ import { NextRequest } from 'next/server'
 import { getMatchRepository } from '@/lib/server'
 import { MOCK_ROUNDS } from '@/lib/mock'
 import { withCompetition } from '@/lib/config/competitionContext'
-import { handleProviderError } from '../../_helpers'
+import { handleProviderError, skipIfUpcoming } from '../../_helpers'
 import { cacheHeaders } from '@/lib/cache'
 import type { BracketRound, Match, TournamentRound } from '@/types/domain.types'
 
@@ -54,6 +54,9 @@ export async function GET(request: NextRequest) {
   const competitionKey = request.nextUrl.searchParams.get('competition')
 
   return withCompetition(competitionKey, async () => {
+    const skip = skipIfUpcoming<BracketRound[]>([])
+    if (skip) return skip
+
     try {
       const matches = await getMatchRepository().findAll()
       const rounds  = groupIntoRounds(matches)

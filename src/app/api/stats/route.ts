@@ -8,7 +8,7 @@
 import { NextRequest } from 'next/server'
 import { getStatsRepository, getMatchRepository } from '@/lib/server'
 import { withCompetition } from '@/lib/config/competitionContext'
-import { handleProviderError } from '../_helpers'
+import { handleProviderError, skipIfUpcoming } from '../_helpers'
 import { cacheHeaders } from '@/lib/cache'
 import type { TopScorer } from '@/lib/mock/types'
 import type { TeamGoals, StatsSummary } from '@/lib/repositories/stats'
@@ -25,6 +25,13 @@ export async function GET(request: NextRequest) {
   const competitionKey = request.nextUrl.searchParams.get('competition')
 
   return withCompetition(competitionKey, async () => {
+    const skip = skipIfUpcoming<StatsResponse>({
+      summary: { goalsScored: 0, matchesPlayed: 0, goalsPerMatch: 0, teamsRemaining: 0 },
+      topScorers: [],
+      teamGoals: [],
+    })
+    if (skip) return skip
+
   try {
     const statsRepo = getStatsRepository()
     const matchRepo = getMatchRepository()
