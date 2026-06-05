@@ -11,14 +11,18 @@
 
 import { serverEnvSchema } from './env.schema'
 import { getCompetitionByKey } from './competitions'
+import type { z } from 'zod'
 import type {
   AppConfig,
+  CacheConfig,
   CompetitionKey,
   ProviderName,
   ProviderConfig,
   ProvidersConfig,
   SportradarAccessLevel,
 } from './types'
+
+type Env = z.infer<typeof serverEnvSchema>
 
 // ── Loader ────────────────────────────────────────────────────────────────────
 
@@ -59,11 +63,7 @@ export function loadConfig(): AppConfig {
       name: 'api-football',
       credentials: {
         apiKey: env.API_FOOTBALL_KEY,
-        host: env.API_FOOTBALL_HOST,
-      },
-      rateLimit: {
-        requestsPerMinute: env.API_FOOTBALL_RATE_LIMIT_MINUTE,
-        requestsPerDay: env.API_FOOTBALL_RATE_LIMIT_DAY,
+        host:   env.API_FOOTBALL_HOST,
       },
     }
   }
@@ -73,10 +73,6 @@ export function loadConfig(): AppConfig {
     allProviders['sportmonks'] = {
       name: 'sportmonks',
       credentials: { token: env.SPORTMONKS_TOKEN },
-      rateLimit: {
-        requestsPerMinute: env.SPORTMONKS_RATE_LIMIT_MINUTE,
-        requestsPerDay: env.SPORTMONKS_RATE_LIMIT_DAY,
-      },
     }
   }
 
@@ -85,12 +81,8 @@ export function loadConfig(): AppConfig {
     allProviders['sportradar'] = {
       name: 'sportradar',
       credentials: {
-        apiKey: env.SPORTRADAR_KEY,
+        apiKey:      env.SPORTRADAR_KEY,
         accessLevel: env.SPORTRADAR_ACCESS_LEVEL as SportradarAccessLevel,
-      },
-      rateLimit: {
-        requestsPerMinute: env.SPORTRADAR_RATE_LIMIT_MINUTE,
-        requestsPerDay: env.SPORTRADAR_RATE_LIMIT_DAY,
       },
     }
   }
@@ -108,36 +100,29 @@ export function loadConfig(): AppConfig {
     competition,
     providers,
     cache: {
-      liveMatchTtlSec: env.CACHE_LIVE_MATCH_TTL,
-      matchDetailTtlSec: env.CACHE_MATCH_DETAIL_TTL,
-      fixturesTtlSec: env.CACHE_FIXTURES_TTL,
-      standingsTtlSec: env.CACHE_STANDINGS_TTL,
-      teamTtlSec: env.CACHE_TEAM_TTL,
       maxEntries: env.CACHE_MAX_ENTRIES,
-      // Redis chỉ enable khi cả url+token được set (avoid partial config)
-      redis: env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
-        ? {
-          url: env.UPSTASH_REDIS_REST_URL,
-          token: env.UPSTASH_REDIS_REST_TOKEN,
-          keyPrefix: env.REDIS_KEY_PREFIX,
-          timeoutMs: env.REDIS_TIMEOUT_MS,
-        }
-        : undefined,
-    },
-    features: {
-      liveUpdates: env.FEATURE_LIVE_UPDATES,
-      realtimeSim: env.FEATURE_REALTIME_SIM,
-      standings: env.FEATURE_STANDINGS,
-      stats: env.FEATURE_STATS,
-    },
-    api: {
-      rateLimitPerMinute: env.API_RATE_LIMIT_PER_MINUTE,
-      corsOrigins: env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean),
+      // Redis enable khi có cả url + token. Ưu tiên UPSTASH_* (manual),
+      // fallback KV_REST_API_* (Vercel KV auto-injected).
+      redis:      resolveRedisConfig(env),
     },
   }
 }
 
 // ── Private helpers ────────────────────────────────────────────────────────────
+
+/**
+ * Resolve Redis credentials. Cần cả UPSTASH_REDIS_REST_URL + TOKEN.
+ * Trả về undefined nếu thiếu → loader sẽ dùng MemoryCache.
+ */
+function resolveRedisConfig(env: Env): CacheConfig['redis'] {
+  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) return undefined
+  return {
+    url:       env.UPSTASH_REDIS_REST_URL,
+    token:     env.UPSTASH_REDIS_REST_TOKEN,
+    keyPrefix: env.REDIS_KEY_PREFIX,
+    timeoutMs: env.REDIS_TIMEOUT_MS,
+  }
+}
 
 function parseFallbackList(raw: string): ProviderName[] {
   return raw

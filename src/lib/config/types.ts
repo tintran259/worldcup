@@ -48,25 +48,20 @@ export interface ProviderCompetitionIds {
 // ── Competition ────────────────────────────────────────────────────────────────
 
 export interface CompetitionConfig {
-  key: CompetitionKey
-  name: string                                       // display name
-  shortName: string
-  type: CompetitionType
+  key:           CompetitionKey
+  name:          string                                       // display name
+  shortName:     string
+  type:          CompetitionType
   hasGroupStage: boolean
   /** IDs keyed by provider name — only known providers are listed */
-  providerIds: Partial<Record<ProviderName, ProviderCompetitionIds>>
+  providerIds:   Partial<Record<ProviderName, ProviderCompetitionIds>>
 }
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
-export interface ProviderRateLimit {
-  requestsPerMinute: number
-  requestsPerDay: number
-}
-
 export interface ApiFootballCredentials {
   apiKey: string
-  host: string
+  host:   string
 }
 
 export interface SportMonksCredentials {
@@ -74,38 +69,28 @@ export interface SportMonksCredentials {
 }
 
 export interface SportradarCredentials {
-  apiKey: string
+  apiKey:      string
   accessLevel: SportradarAccessLevel
 }
 
-export type ProviderCredentials =
-  | { provider: 'api-football'; creds: ApiFootballCredentials }
-  | { provider: 'sportmonks'; creds: SportMonksCredentials }
-  | { provider: 'sportradar'; creds: SportradarCredentials }
-
 export interface ProviderConfig {
-  name: ProviderName
+  name:        ProviderName
   credentials: ApiFootballCredentials | SportMonksCredentials | SportradarCredentials
-  rateLimit: ProviderRateLimit
 }
 
 export interface ProvidersConfig {
   /** Ordered list: primary first, then fallbacks */
   chain: ProviderName[]
   /** Per-provider settings indexed by name */
-  all: Partial<Record<ProviderName, ProviderConfig>>
+  all:   Partial<Record<ProviderName, ProviderConfig>>
 }
 
 // ── Cache ──────────────────────────────────────────────────────────────────────
 
 export interface CacheConfig {
-  liveMatchTtlSec: number
-  matchDetailTtlSec: number
-  fixturesTtlSec: number
-  standingsTtlSec: number
-  teamTtlSec: number
+  /** MemoryCache LRU max entries (số entry tối đa trong RAM) */
   maxEntries: number
-  /** Upstash REST config — nếu cả url+token set thì dùng Redis thay memory */
+  /** Upstash/Vercel KV REST config — nếu set thì dùng Redis thay memory */
   redis?: {
     url:       string
     token:     string
@@ -114,38 +99,19 @@ export interface CacheConfig {
   }
 }
 
-// ── Feature flags ──────────────────────────────────────────────────────────────
-
-export interface FeatureFlags {
-  liveUpdates: boolean
-  realtimeSim: boolean
-  standings: boolean
-  stats: boolean
-}
-
-// ── API ────────────────────────────────────────────────────────────────────────
-
-export interface ApiConfig {
-  rateLimitPerMinute: number
-  corsOrigins: string[]
-}
-
 // ── Client-safe config (subset exposed to the browser) ────────────────────────
 
 export interface ClientConfig {
-  appEnv: Environment
-  appName: string
+  appEnv:      Environment
+  appName:     string
   competition: Pick<CompetitionConfig, 'key' | 'name' | 'shortName' | 'type' | 'hasGroupStage'>
-  features: FeatureFlags
 }
 
 // ── Full AppConfig (server-only) ───────────────────────────────────────────────
 
 export interface AppConfig {
-  env: Environment
+  env:         Environment
   competition: CompetitionConfig
-  providers: ProvidersConfig
-  cache: CacheConfig
-  features: FeatureFlags
-  api: ApiConfig
+  providers:   ProvidersConfig
+  cache:       CacheConfig
 }

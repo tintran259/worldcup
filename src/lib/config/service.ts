@@ -75,21 +75,14 @@ export function getClientConfig(): ClientConfig {
   const comp = COMPETITIONS[env.NEXT_PUBLIC_COMPETITION]
 
   return {
-    appEnv: env.NEXT_PUBLIC_APP_ENV,
+    appEnv:  env.NEXT_PUBLIC_APP_ENV,
     appName: env.NEXT_PUBLIC_APP_NAME,
     competition: {
-      key: comp.key,
-      name: comp.name,
-      shortName: comp.shortName,
-      type: comp.type,
+      key:           comp.key,
+      name:          comp.name,
+      shortName:     comp.shortName,
+      type:          comp.type,
       hasGroupStage: comp.hasGroupStage,
-    },
-    features: {
-      // Feature flags aren't NEXT_PUBLIC, so they default to enabled on client
-      liveUpdates: true,
-      realtimeSim: true,
-      standings: true,
-      stats: true,
     },
   }
 }
