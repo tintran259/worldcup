@@ -1,0 +1,94 @@
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="30%" stop-color="#fbbf24"/>
+      <stop offset="70%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="6" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.4"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- iOS rounded background -->
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <!-- decorative star sparkles -->
+  <g fill="rgba(255,255,255,0.4)" opacity="0.6">
+    <circle cx="40" cy="50" r="1.5"/>
+    <circle cx="145" cy="40" r="1.2"/>
+    <circle cx="155" cy="105" r="1"/>
+    <circle cx="30" cy="120" r="1.3"/>
+  </g>
+
+  <!-- Trophy group (centered horizontally, slightly up) -->
+  <g transform="translate(90 92)" filter="url(#shadow)">
+    <!-- Globe top -->
+    <g>
+      <ellipse cx="0" cy="-35" rx="26" ry="27" fill="url(#goldShine)" stroke="#7c2d12" stroke-width="2"/>
+      <!-- globe meridians -->
+      <ellipse cx="0" cy="-35" rx="10" ry="27" fill="none" stroke="#92400e" stroke-width="1.4" opacity="0.55"/>
+      <ellipse cx="0" cy="-35" rx="20" ry="27" fill="none" stroke="#92400e" stroke-width="1" opacity="0.4"/>
+      <line x1="-26" y1="-35" x2="26" y2="-35" stroke="#92400e" stroke-width="1.4" opacity="0.55"/>
+      <!-- highlight gleam -->
+      <ellipse cx="-9" cy="-44" rx="6" ry="3" fill="rgba(255,251,235,0.7)"/>
+    </g>
+
+    <!-- Twisted figures (arms forming cup body) -->
+    <path
+      d="M -22 -10
+         Q -32 14, -22 36
+         L -10 44
+         L 10 44
+         L 22 36
+         Q 32 14, 22 -10
+         Q 18 -8, 14 -4
+         Q 10 4, 13 20
+         Q 8 32, 0 34
+         Q -8 32, -13 20
+         Q -10 4, -14 -4
+         Q -18 -8, -22 -10 Z"
+      fill="url(#gold)"
+      stroke="#7c2d12"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+
+    <!-- Mid highlight on figures -->
+    <path
+      d="M -18 0 Q -22 18, -16 30 M 18 0 Q 22 18, 16 30"
+      stroke="#fde68a"
+      stroke-width="2.5"
+      fill="none"
+      opacity="0.7"
+      stroke-linecap="round"
+    />
+
+    <!-- Green malachite band (signature) -->
+    <rect x="-23" y="44" width="46" height="9" rx="1" fill="#15803d" stroke="#14532d" stroke-width="1.5"/>
+    <rect x="-23" y="44" width="46" height="3" fill="#22c55e" opacity="0.6"/>
+
+    <!-- Base bottom -->
+    <rect x="-28" y="53" width="56" height="12" rx="2" fill="url(#goldShine)" stroke="#7c2d12" stroke-width="2"/>
+    <rect x="-28" y="55" width="56" height="3" fill="#fef3c7" opacity="0.6"/>
+  </g>
+
+  <!-- "2026" badge below trophy -->
+  <g transform="translate(90 162)">
+    <rect x="-32" y="-13" width="64" height="22" rx="11" fill="rgba(255,255,255,0.95)"/>
+    <text x="0" y="3" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="13" font-weight="800" text-anchor="middle" fill="#1e3a8a" letter-spacing="0.8">2026</text>
+  </g>
+</svg>

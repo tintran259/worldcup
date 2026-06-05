@@ -1,0 +1,35 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- background -->
+  <circle cx="16" cy="16" r="16" fill="url(#bg)"/>
+  <!-- trophy globe top -->
+  <ellipse cx="16" cy="9" rx="5" ry="5.2" fill="url(#goldShine)" stroke="#7c2d12" stroke-width="0.4"/>
+  <!-- globe meridians (subtle) -->
+  <ellipse cx="16" cy="9" rx="2" ry="5.2" fill="none" stroke="#92400e" stroke-width="0.3" opacity="0.5"/>
+  <line x1="11" y1="9" x2="21" y2="9" stroke="#92400e" stroke-width="0.3" opacity="0.5"/>
+  <!-- twisted figure handles (stylized) -->
+  <path d="M 12 11 Q 9 17 14 22 L 18 22 Q 23 17 20 11 Z" fill="url(#gold)" stroke="#7c2d12" stroke-width="0.4"/>
+  <!-- inner curve highlight (figure-of-arms shape) -->
+  <path d="M 13.5 12 Q 12 16 14 21 M 18 21 Q 20 16 18.5 12" stroke="#fcd34d" stroke-width="0.5" fill="none" opacity="0.7"/>
+  <!-- base middle ring -->
+  <rect x="11.5" y="22" width="9" height="2" fill="#65a30d" stroke="#3f6212" stroke-width="0.3"/>
+  <!-- base bottom -->
+  <rect x="10" y="24" width="12" height="2.5" rx="0.5" fill="url(#gold)" stroke="#7c2d12" stroke-width="0.4"/>
+  <!-- tiny shadow under base -->
+  <ellipse cx="16" cy="27.5" rx="6" ry="0.5" fill="rgba(0,0,0,0.3)"/>
+</svg>
