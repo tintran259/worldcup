@@ -8,11 +8,3 @@ export const EmptyWrap = styled.div`
   justify-content: center;
   background: ${(p) => p.theme.colors.bg.surface};
 `
-
-export const EmptyTitle = styled.p`
-  font-family: ${(p) => p.theme.fonts.broadcast};
-  font-size: ${(p) => p.theme.fontSizes['3xl']};
-  letter-spacing: ${(p) => p.theme.letterSpacings.wider};
-  color: ${(p) => p.theme.colors.text.muted};
-  text-transform: uppercase;
-`

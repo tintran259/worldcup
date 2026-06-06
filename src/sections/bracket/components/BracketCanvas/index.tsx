@@ -5,25 +5,38 @@ import { ZoomCanvas } from '../ZoomCanvas'
 import { SVGConnections } from '../SVGConnections'
 import { RoundColumn } from '../RoundColumn'
 import { useBracketStore } from '@/stores'
+import { LoadingState, EmptyState } from '@/components/SectionStatus'
 import {
   computeNodePositions,
   computeBracketDimensions,
   buildConnectorPaths,
 } from '../../utils/bracketLayout'
 import type { BracketRound } from '@/types/domain.types'
-import { EmptyWrap, EmptyTitle } from './styles'
+import { EmptyWrap } from './styles'
 
 export interface BracketCanvasProps {
   rounds: BracketRound[]
+  isLoading?: boolean
 }
 
-export function BracketCanvas({ rounds }: BracketCanvasProps) {
+export function BracketCanvas({ rounds, isLoading = false }: BracketCanvasProps) {
   const { highlightedTeamId } = useBracketStore()
 
   if (!rounds.length) {
     return (
       <EmptyWrap>
-        <EmptyTitle>Tournament Bracket</EmptyTitle>
+        {isLoading ? (
+          <LoadingState
+            title="Đang tải sơ đồ giải đấu"
+            sub="Đang dựng bracket từ dữ liệu trận đấu."
+          />
+        ) : (
+          <EmptyState
+            icon="🏆"
+            title="Chưa có sơ đồ giải đấu"
+            sub="Giải đấu chưa diễn ra hoặc chưa có dữ liệu vòng đấu loại trực tiếp."
+          />
+        )}
       </EmptyWrap>
     )
   }

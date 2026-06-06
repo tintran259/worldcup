@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { Flag } from '@/components/Flag'
 import { useStats } from './hooks/useStats'
+import { useFavorites } from '@/hooks/useFavorites'
+import { LoadingState, EmptyState } from '@/components/SectionStatus'
 import {
   SectionTitle,
   Section,
@@ -45,10 +47,34 @@ const SUMMARY_CARDS = [
 ] as const
 
 export function StatsTab() {
-  const { summary, topScorers, teamGoals } = useStats()
+  const { summary, topScorers, teamGoals, isLoading, hasData } = useStats()
+  const { hasActiveFilter } = useFavorites()
 
   // Max goals làm thước đo bar (tránh chia 0 nếu chưa có data)
   const maxTeamGoals = Math.max(1, ...teamGoals.map(t => t.goals))
+
+  if (isLoading && !hasData) {
+    return (
+      <LoadingState
+        title="Đang tải thống kê"
+        sub="Đang tổng hợp số liệu giải đấu."
+      />
+    )
+  }
+
+  if (!hasData) {
+    return (
+      <EmptyState
+        icon="📈"
+        title="Chưa có thống kê"
+        sub={
+          hasActiveFilter
+            ? 'Không có số liệu cho đội yêu thích của bạn. Bỏ filter để xem toàn giải.'
+            : 'Giải đấu chưa diễn ra hoặc chưa có trận nào hoàn tất.'
+        }
+      />
+    )
+  }
 
   return (
     <div>

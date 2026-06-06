@@ -30,7 +30,7 @@ import {
 } from './styles'
 
 export function TournamentLayout() {
-  const { rounds, hasLiveMatches, liveCount } = useBracketData()
+  const { rounds, hasLiveMatches, liveCount, isLoading } = useBracketData()
 
   const containerRef = useRef<HTMLDivElement>(null)
   useGSAPIntro(containerRef)
@@ -49,7 +49,7 @@ export function TournamentLayout() {
             <OverlayDot />
             <OverlayLabel>Bracket Explorer</OverlayLabel>
           </BracketOverlay>
-          <BracketCanvas rounds={rounds} />
+          <BracketCanvas rounds={rounds} isLoading={isLoading} />
         </BracketCell>
 
         <LiveCell data-intro="bento">

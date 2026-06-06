@@ -4,6 +4,8 @@ import React, { useState, useCallback } from 'react'
 import { GroupTable } from './components/GroupTable'
 import { StandingsModal } from './components/StandingsModal'
 import { useStandings } from './hooks/useStandings'
+import { useFavorites } from '@/hooks/useFavorites'
+import { LoadingState, EmptyState } from '@/components/SectionStatus'
 import {
   PanelHeader,
   SectionTitle,
@@ -29,7 +31,8 @@ function IconExpand() {
 }
 
 export function StandingsTab() {
-  const { groups } = useStandings()
+  const { groups, isLoading } = useStandings()
+  const { hasActiveFilter } = useFavorites()
   const [modalOpen, setModalOpen] = useState(false)
   const openModal = useCallback(() => setModalOpen(true), [])
   const closeModal = useCallback(() => setModalOpen(false), [])
@@ -49,6 +52,25 @@ export function StandingsTab() {
           </ViewAllBtn>
         )}
       </PanelHeader>
+
+      {isLoading && !hasGroups && (
+        <LoadingState
+          title="Đang tải bảng xếp hạng"
+          sub="Đang đồng bộ thứ hạng các bảng đấu."
+        />
+      )}
+
+      {!isLoading && !hasGroups && (
+        <EmptyState
+          icon="📊"
+          title="Chưa có bảng xếp hạng"
+          sub={
+            hasActiveFilter
+              ? 'Không có bảng đấu nào chứa đội yêu thích của bạn. Bỏ filter để xem tất cả.'
+              : 'Giải đấu này chưa có dữ liệu vòng bảng hoặc chưa diễn ra.'
+          }
+        />
+      )}
 
       {groups.map((group) => (
         <GroupBlock key={group.id}>
